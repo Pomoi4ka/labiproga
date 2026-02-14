@@ -64,6 +64,7 @@ public:
     size_t length() const;
     inline void reset()            { *m_buf = m_mark;        }
     inline void setMark(char mark) { m_mark = mark; reset(); }
+    inline char getMark() const    { return m_mark;          }
     inline char *data()            { return m_buf;           }
 
     explicit inline MarkedString() {}
@@ -221,9 +222,7 @@ void FileProcessor::processString()
         DOT_ENCOUNTERED
     } state = PASSING;
     char *data = m_string.data();
-    char *end = data + m_string.length();
-
-    for (char *dst = data; dst != end; ) {
+    for (char *dst = data; *dst != m_string.getMark(); ) {
         switch (state) {
         case PASSING:
             if (*data == '.') state = DOT_ENCOUNTERED;
