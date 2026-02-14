@@ -56,7 +56,8 @@ private:
 public:
     enum Error {
         NO_ERR,
-        NO_MEM
+        NO_MEM,
+        ILLIGAL_CHAR
     };
 
     Error add(char);
@@ -98,6 +99,7 @@ public:
     bool readNumber();
     bool readStringUntilDelimOrEol(MarkedString &);
     inline void setLimit(size_t limit) { m_limit = limit; };
+    inline void skipEverythingUntilDelim() { while (peekChar() != STRING_DELIM && !isEof()) readChar(); }
     inline void skipEverythingUntilEol() { while (peekChar() != EOL_CHAR && !isEof()) readChar(); }
     inline size_t getNumber() const { return m_number; }
     inline bool skipDelimOrEol()
@@ -248,8 +250,8 @@ size_t MarkedString::length() const
 
 MarkedString::Error MarkedString::add(char x)
 {
+    if (x == m_mark) return ILLIGAL_CHAR;
     size_t len = length();
-    if (x == m_mark) return NO_ERR;
     if (len >= STRING_BUFFER_SIZE) return NO_MEM;
     m_buf[len  ] = x;
     m_buf[len+1] = m_mark;
@@ -294,6 +296,9 @@ bool FileReader::readStringUntilDelimOrEol(MarkedString &s)
         MarkedString::Error err = s.add(readChar());
         switch (err) {
         case MarkedString::NO_ERR: break;
+        case MarkedString::ILLIGAL_CHAR:
+            skipEverythingUntilDelim();
+            return true;
         case MarkedString::NO_MEM:
             std::cerr << "ОШИБКА: слишком длинная строка" << std::endl;
             return false;
