@@ -123,14 +123,14 @@ int main()
 void VersionSelector::promptUser()
 {
     VersionReader verReader;
- again:
-    std::cout << "Введите версию: ";
-    verReader.read();
-    if (!verReader) {
-        std::cerr << "ОШИБКА: неудалось прочитать версию: " << verReader.getErrorString()
-                  << std::endl;
-        goto again;
-    }
+    do {
+        std::cout << "Введите версию: ";
+        verReader.read();
+        if (!verReader) {
+            std::cerr << "ОШИБКА: неудалось прочитать версию: " << verReader.getErrorString()
+                      << std::endl;
+        }
+    } while (!verReader);
     m_ver = verReader.getVersion();
 }
 
