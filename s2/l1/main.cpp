@@ -70,18 +70,6 @@ public:
     explicit inline MarkedString() {}
 };
 
-class FileProcessor {
-    MarkedString m_string;
-
-    void processString();
-    bool processStream(class FileReader &);
-public:
-    typedef bool (FileProcessor:: *ProcessFn)();
-
-    bool processWithFileMarkerAkaVersionOne();
-    bool processWithSizeOfInputAkaVersionTwo();
-};
-
 class FileReader {
     std::ifstream m_file;
     long m_limit;
@@ -111,6 +99,19 @@ public:
         readChar();
         return true;
     }
+};
+
+class FileProcessor {
+    MarkedString m_string;
+    FileReader m_reader;
+
+    void processString();
+    bool processStream();
+public:
+    typedef bool (FileProcessor:: *ProcessFn)();
+
+    bool processWithFileMarkerAkaVersionOne();
+    bool processWithSizeOfInputAkaVersionTwo();
 };
 
 int main()
@@ -171,7 +172,7 @@ bool VersionSelector::runCorrespondingVersion() const
     return (FileProcessor().*fn)();
 }
 
-bool FileProcessor::processStream(FileReader &reader)
+bool FileProcessor::processStream()
 {
     std::ofstream output;
 
@@ -182,11 +183,11 @@ bool FileProcessor::processStream(FileReader &reader)
         return false;
     }
 
-    while (reader.readStringUntilDelimOrEol(m_string)) {
+    while (m_reader.readStringUntilDelimOrEol(m_string)) {
         processString();
         output.write(m_string.data(), m_string.length());
         m_string.reset();
-        if (!reader.skipDelimOrEol()) break;
+        if (!m_reader.skipDelimOrEol()) break;
         output << EOL_CHAR;
     }
     return true;
@@ -194,25 +195,21 @@ bool FileProcessor::processStream(FileReader &reader)
 
 bool FileProcessor::processWithFileMarkerAkaVersionOne()
 {
-    FileReader reader;
-
-    if (!reader.open(INPUT_FILE_NAME)) return false;
-    if (!reader.readMark(m_string)) return false;
-    return processStream(reader);
+    if (!m_reader.open(INPUT_FILE_NAME)) return false;
+    if (!m_reader.readMark(m_string)) return false;
+    return processStream();
 }
 
 bool FileProcessor::processWithSizeOfInputAkaVersionTwo()
 {
-    FileReader reader;
-
-    if (!reader.open(INPUT_FILE_NAME)) return false;
+    if (!m_reader.open(INPUT_FILE_NAME)) return false;
     m_string.setMark(DEFAULT_MARK_FOR_VERSION_TWO);
-    if (!reader.readNumber()) return false;
-    size_t limit = reader.getNumber();
-    reader.skipEverythingUntilEol();
-    if (!reader.skipDelimOrEol()) return true;
-    reader.setLimit(limit);
-    return processStream(reader);
+    if (!m_reader.readNumber()) return false;
+    size_t limit = m_reader.getNumber();
+    m_reader.skipEverythingUntilEol();
+    if (!m_reader.skipDelimOrEol()) return true;
+    m_reader.setLimit(limit);
+    return processStream();
 }
 
 void FileProcessor::processString()
