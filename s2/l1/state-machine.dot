@@ -1,0 +1,20 @@
+digraph {
+    subgraph {
+        rank = same; Pass; Skip;
+    }
+
+    Skip_Other[label = "не точка" shape = diamond]
+    Pass_Other[label = "не точка" shape = diamond]
+
+    Skip_Dot[label = "." shape = diamond]
+    Pass_Dot[label = "." shape = diamond]
+
+    Skip_Append[label = "*dst++ = *data++" shape = box]
+    Pass_Append[label = "*dst++ = *data++" shape = box]
+    Skip_Data[label = "data++" shape = box]
+
+    Skip -> Skip_Dot -> Skip_Data -> Skip
+    Pass -> Pass_Dot -> Skip_Append -> Skip
+    Pass -> Pass_Other -> Pass_Append -> Pass
+    Skip -> Skip_Other -> Pass
+}
