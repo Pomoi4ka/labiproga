@@ -56,8 +56,7 @@ private:
 public:
     enum Error {
         NO_ERR,
-        NO_MEM,
-        ILLIGAL_CHAR
+        NO_MEM
     };
 
     Error add(char);
@@ -250,7 +249,7 @@ size_t MarkedString::length() const
 MarkedString::Error MarkedString::add(char x)
 {
     size_t len = length();
-    if (x == m_mark) return ILLIGAL_CHAR;
+    if (x == m_mark) return NO_ERR;
     if (len >= STRING_BUFFER_SIZE) return NO_MEM;
     m_buf[len  ] = x;
     m_buf[len+1] = m_mark;
@@ -295,9 +294,6 @@ bool FileReader::readStringUntilDelimOrEol(MarkedString &s)
         MarkedString::Error err = s.add(readChar());
         switch (err) {
         case MarkedString::NO_ERR: break;
-        case MarkedString::ILLIGAL_CHAR:
-            std::cerr << "ОШИБКА: запрещённый символ: файл использует маркер в строках" << std::endl;
-            return false;
         case MarkedString::NO_MEM:
             std::cerr << "ОШИБКА: слишком длинная строка" << std::endl;
             return false;
@@ -323,6 +319,6 @@ int FileReader::readChar()
 {
     if (m_limit < 0) return m_file.get();
     if (!m_limit) return 0;
-    --m_limit;
+    m_limit -= 1;
     return m_file.get();
 }
