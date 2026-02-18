@@ -138,14 +138,15 @@ void VersionSelector::promptUser()
 
 void VersionReader::read()
 {
-    int ver;
+    int ver = 0;
 
     m_errMsg = NULL;
 
     std::cin >> std::noskipws;
     if (!(std::cin >> ver)) {
         std::cin.clear();
-        while (std::cin.get() != EOL_CHAR) ;;
+        while (std::cin.get() != EOL_CHAR)
+            ;;
         m_errMsg = "неудалось считать с потока число";
         return;
     }
@@ -248,7 +249,7 @@ MarkedString::Error MarkedString::add(char x)
 {
     if (x == m_mark) return ILLIGAL_CHAR;
     size_t len = length();
-    if (len >= STRING_BUFFER_SIZE) return NO_MEM;
+    if (len + 1 >= STRING_BUFFER_SIZE) return NO_MEM;
     m_buf[len  ] = x;
     m_buf[len+1] = m_mark;
     return NO_ERR;

@@ -1,4 +1,6 @@
-main: main.o
-	$(CXX) -o $@ main.o
-main.o: CXXFLAGS= -Wall -Wextra -pedantic -std=c++98 -ggdb
-main.o: main.cpp
+CXXFLAGS=-Wall -Wextra -pedantic -std=c++98 -ggdb
+ifeq ($(CXX), clang++)
+	CXXFLAGS+=-fsanitize=memory,undefined
+endif
+main: main.cpp
+	$(CXX) $(CXXFLAGS) -o $@ main.cpp
