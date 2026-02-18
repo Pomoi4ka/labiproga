@@ -1,0 +1,4 @@
+$
+line1..with..dots
+line2...dots
+line3
