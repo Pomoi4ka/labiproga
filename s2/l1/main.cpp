@@ -143,7 +143,6 @@ void VersionSelector::promptUser()
 void VersionReader::read()
 {
     int ver = 0;
-
     m_errMsg = NULL;
 
     std::cin >> std::noskipws;
@@ -306,8 +305,8 @@ bool FileReader::readStringUntilDelimOrEol(MarkedString &s)
             skipEverythingUntilDelim();
             return true;
         case MarkedString::NO_MEM:
-            std::cerr << "ОШИБКА: слишком длинная строка" << std::endl;
-            return false;
+            return true;
+            // std::cerr << "ОШИБКА: слишком длинная строка" << std::endl;
         default: assert(0 && "unreachable");
         }
     }
@@ -316,7 +315,7 @@ bool FileReader::readStringUntilDelimOrEol(MarkedString &s)
 bool FileReader::isEof() const
 {
     if (m_limit < 0) return m_file.eof();
-    return m_limit == 0;
+    return m_limit == 0 || m_file.eof();
 }
 
 int FileReader::peekChar()
