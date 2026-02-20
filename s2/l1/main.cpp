@@ -192,11 +192,17 @@ bool FileProcessor::processStream()
     }
 
     while (m_reader.readStringUntilDelimOrEol(m_string)) {
+        output << "Исходная строка: ";
+        output.write(m_string.data(), m_string.length());
+        output << EOL_CHAR;
+
+        output << "Новая строка:    ";
         processString();
         output.write(m_string.data(), m_string.length());
+        output << EOL_CHAR;
+
         m_string.reset();
         if (!m_reader.skipDelimOrEol()) break;
-        output << EOL_CHAR;
     }
     return true;
 }
@@ -297,7 +303,8 @@ bool FileReader::readStringUntilDelimOrEol(MarkedString &s)
 {
     for (;;) {
         char next = peekChar();
-        if (next == STRING_DELIM || next == EOL_CHAR || isEof()) return true;
+        if (next == STRING_DELIM || next == EOL_CHAR) return true;
+        if (isEof()) return !!s.length();
         MarkedString::Error err = s.add(readChar());
         switch (err) {
         case MarkedString::NO_ERR: break;
