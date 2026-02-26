@@ -147,14 +147,6 @@ std::ostream &operator<<(std::ostream& s, SizedString const &ss);
 
 int main()
 {
-    SizedString s;
-
-    for (const char *a = "ЩАЩЬЬЬЬ"; *a; ) {
-        s.add(*a++);
-    }
-
-    std::cout << s << std::endl;
-    return 0;
     VersionSelector selector;
     selector.promptUser();
     if (!selector.runCorrespondingVersion()) return 1;
@@ -227,15 +219,8 @@ bool FileProcessor::processStream()
     }
 
     while (m_reader.readStringUntilDelimOrEol(m_string)) {
-        output << "Исходная строка: ";
-        output.write(m_string.data(), m_string.length());
-        output << EOL_CHAR;
-
-        output << "Новая строка:    ";
-        processString();
-        output.write(m_string.data(), m_string.length());
-        output << EOL_CHAR;
-
+        output << "Исходная строка: " << m_string << EOL_CHAR;
+        output << "Новая строка:    " << (processString(), m_string) << EOL_CHAR;
         m_string.reset();
         if (!m_reader.skipDelimOrEol()) break;
     }
@@ -376,7 +361,7 @@ int FileReader::readChar()
 char *SizedString::allocWithCapacity(size_t cap)
 {
     char *data = new char[cap + CAPACITY_FIELD_SIZE];
-    *(size_t*)data = cap;
+    *reinterpret_cast<size_t*>(data) = cap;
     return data + CAPACITY_FIELD_SIZE;
 }
 
