@@ -10,7 +10,7 @@ const char SPACE_SYMBOLS_NO_EOL[] = {' ', '\t'};
 const size_t SPACE_SYMBOLS_NO_EOL_COUNT =
     sizeof SPACE_SYMBOLS_NO_EOL / sizeof SPACE_SYMBOLS_NO_EOL[0];
 
-const size_t STRING_BUFFER_SIZE = 255;
+const size_t STRING_BUFFER_SIZE = 12;
 
 const char *INPUT_FILE_NAME = "input.txt";
 const char *OUTPUT_FILE_NAME = "output.txt";
@@ -49,6 +49,29 @@ private:
     Version m_ver;
 };
 
+class SizedString {
+    static const size_t INITIAL_CAP = 1;
+    static const size_t CAPACITY_FIELD_SIZE = sizeof(size_t);
+
+    char *m_data;
+    size_t m_length;
+    inline size_t &capacity() { return *(reinterpret_cast<size_t*>(m_data) - 1); }
+    static char *allocWithCapacity(size_t cap);
+public:
+    inline explicit SizedString()
+        : m_data(allocWithCapacity(INITIAL_CAP)), m_length(0)
+    {}
+
+    inline ~SizedString() {
+        delete[] (m_data - sizeof(size_t));
+    }
+
+    void add(char);
+    inline size_t length() const { return m_length; }
+    inline char *data() {return m_data; }
+    inline const char *data() const {return m_data; }
+};
+
 struct MarkedString {
 private:
     char m_mark;
@@ -67,6 +90,7 @@ public:
     inline void setMark(char mark) { m_mark = mark; reset(); }
     inline char getMark() const    { return m_mark;          }
     inline char *data()            { return m_buf;           }
+    inline const char *data() const {return m_buf; }
 
     explicit inline MarkedString() {}
 };
@@ -118,8 +142,19 @@ public:
     bool processWithSizeOfInputAkaVersionTwo();
 };
 
+std::ostream &operator<<(std::ostream& s, MarkedString const &m);
+std::ostream &operator<<(std::ostream& s, SizedString const &ss);
+
 int main()
 {
+    SizedString s;
+
+    for (const char *a = "ЩАЩЬЬЬЬ"; *a; ) {
+        s.add(*a++);
+    }
+
+    std::cout << s << std::endl;
+    return 0;
     VersionSelector selector;
     selector.promptUser();
     if (!selector.runCorrespondingVersion()) return 1;
@@ -311,9 +346,7 @@ bool FileReader::readStringUntilDelimOrEol(MarkedString &s)
         case MarkedString::ILLIGAL_CHAR:
             skipEverythingUntilDelim();
             return true;
-        case MarkedString::NO_MEM:
-            return true;
-            // std::cerr << "ОШИБКА: слишком длинная строка" << std::endl;
+        case MarkedString::NO_MEM: return true;
         default: assert(0 && "unreachable");
         }
     }
@@ -338,4 +371,39 @@ int FileReader::readChar()
     if (!m_limit) return 0;
     m_limit -= 1;
     return m_file.get();
+}
+
+char *SizedString::allocWithCapacity(size_t cap)
+{
+    char *data = new char[cap + CAPACITY_FIELD_SIZE];
+    *(size_t*)data = cap;
+    return data + CAPACITY_FIELD_SIZE;
+}
+
+void SizedString::add(char x)
+{
+    if (length() >= capacity()) {
+        ssize_t oldCap = capacity();
+        capacity() *= 2;
+        char *new_data = allocWithCapacity(capacity());
+        for (ssize_t i = -CAPACITY_FIELD_SIZE; i < oldCap; ++i) {
+            new_data[i] = m_data[i];
+        }
+        delete[] (m_data - CAPACITY_FIELD_SIZE);
+        m_data = new_data;
+    }
+
+    m_data[m_length++] = x;
+}
+
+std::ostream &operator<<(std::ostream& s, MarkedString const &m)
+{
+    s.write(m.data(), m.length());
+    return s;
+}
+
+std::ostream &operator<<(std::ostream& s, SizedString const &ss)
+{
+    s.write(ss.data(), ss.length());
+    return s;
 }
