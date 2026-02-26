@@ -63,7 +63,7 @@ public:
     {}
 
     inline ~SizedString() {
-        delete[] (m_data - sizeof(size_t));
+        delete[] (m_data - CAPACITY_FIELD_SIZE);
     }
 
     void add(char);
