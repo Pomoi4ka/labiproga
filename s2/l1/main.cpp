@@ -86,11 +86,11 @@ public:
 
     Error add(char);
     size_t length() const;
-    inline void reset()            { *m_buf = m_mark;        }
-    inline void setMark(char mark) { m_mark = mark; reset(); }
-    inline char getMark() const    { return m_mark;          }
-    inline char *data()            { return m_buf;           }
-    inline const char *data() const {return m_buf; }
+    inline void reset()             { *m_buf = m_mark;        }
+    inline void setMark(char mark)  { m_mark = mark; reset(); }
+    inline char getMark() const     { return m_mark;          }
+    inline char *data()             { return m_buf;           }
+    inline const char *data() const { return m_buf;           }
 
     explicit inline MarkedString() {}
 };
