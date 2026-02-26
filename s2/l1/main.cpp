@@ -55,8 +55,14 @@ class SizedString {
 
     char *m_data;
     size_t m_length;
-    inline size_t &capacity() { return *(reinterpret_cast<size_t*>(m_data) - 1); }
+    inline size_t &capacity()
+    { return *(reinterpret_cast<size_t*>(m_data) - 1); }
     static char *allocWithCapacity(size_t cap);
+
+    // так как c++98 не имеет default, delete конструкторов, то пихнём их
+    // в private. как это ещё больше обезопасить я не знаю
+    void operator=(SizedString) {}
+    inline SizedString(SizedString const&) {}
 public:
     inline explicit SizedString()
         : m_data(allocWithCapacity(INITIAL_CAP)), m_length(0)
@@ -219,8 +225,9 @@ bool FileProcessor::processStream()
     }
 
     while (m_reader.readStringUntilDelimOrEol(m_string)) {
-        output << "Исходная строка: " << m_string << EOL_CHAR;
-        output << "Новая строка:    " << (processString(), m_string) << EOL_CHAR;
+        output << "Исходная строка: " << m_string << EOL_CHAR
+               << "Новая строка:    " << (processString(), m_string)
+               << EOL_CHAR;
         m_string.reset();
         if (!m_reader.skipDelimOrEol()) break;
     }
