@@ -361,7 +361,7 @@ int FileReader::readChar()
 char *SizedString::allocWithCapacity(size_t cap)
 {
     char *data = new char[cap + CAPACITY_FIELD_SIZE];
-    *reinterpret_cast<size_t*>(data) = cap;
+    reinterpret_cast<size_t&>(*data) = cap;
     return data + CAPACITY_FIELD_SIZE;
 }
 
