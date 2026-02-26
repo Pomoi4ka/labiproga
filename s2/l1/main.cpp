@@ -73,9 +73,10 @@ public:
     }
 
     void add(char);
-    inline size_t length() const { return m_length; }
-    inline char *data() {return m_data; }
-    inline const char *data() const {return m_data; }
+    inline void reset()             { this->~SizedString(); new (this) SizedString(); }
+    inline size_t length() const    { return m_length; }
+    inline const char *data() const { return m_data;   }
+    inline char *data()             { return m_data;   }
 };
 
 struct MarkedString {
