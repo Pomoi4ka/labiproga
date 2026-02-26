@@ -61,7 +61,7 @@ class SizedString {
 
     // так как c++98 не имеет default, delete конструкторов, то пихнём их
     // в private. как это ещё больше обезопасить я не знаю
-    void operator=(SizedString) {}
+    inline void operator=(SizedString) {}
     inline SizedString(SizedString const&) {}
 public:
     inline explicit SizedString()
