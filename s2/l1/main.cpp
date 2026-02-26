@@ -160,10 +160,31 @@ public:
         : m_kind(SH_NONE)
     {}
 
-    inline MarkedString& asMarked() const
-    { if (m_kind == SH_MARKED_STRING) return (MarkedString&)*m_storage; assert(0); }
-    inline SizedString& asSized() const
-    { if (m_kind == SH_SIZED_STRING) return (SizedString&)*m_storage; assert(0); }
+    inline MarkedString& asMarked()
+    {
+        if (m_kind == SH_MARKED_STRING)
+            return reinterpret_cast<MarkedString&>(*m_storage);
+        assert(0);
+    }
+    inline SizedString& asSized()
+    {
+        if (m_kind == SH_SIZED_STRING)
+            return reinterpret_cast<SizedString&>(*m_storage);
+        assert(0);
+    }
+
+    inline MarkedString const& asMarked() const
+    {
+        if (m_kind == SH_MARKED_STRING)
+            return reinterpret_cast<MarkedString const&>(*m_storage);
+        assert(0);
+    }
+    inline SizedString const& asSized() const
+    {
+        if (m_kind == SH_SIZED_STRING)
+            return reinterpret_cast<SizedString const&>(*m_storage);
+        assert(0);
+    }
 
     inline HoldingStringKind getKind() const { return m_kind; }
 
@@ -182,17 +203,17 @@ public:
     {
         switch (m_kind) {
         case SH_NONE: break;
-        case SH_MARKED_STRING: ((MarkedString&)(*this->m_storage)).~MarkedString(); break;
-        case SH_SIZED_STRING:  ((SizedString&)(*this->m_storage)).~SizedString();   break;
+        case SH_MARKED_STRING: asMarked().~MarkedString(); break;
+        case SH_SIZED_STRING:  asSized().~SizedString();   break;
         }
     }
 
     inline StringError add(char x)
     {
         switch (m_kind) {
-        case SH_MARKED_STRING: return ((MarkedString&)(*this->m_storage)).add(x); break;
+        case SH_MARKED_STRING: return asMarked().add(x); break;
         case SH_SIZED_STRING:
-            ((SizedString&)(*this->m_storage)).add(x);
+            asSized().add(x);
             return SERR_NO_ERR;
             break;
         case SH_NONE:
@@ -204,8 +225,8 @@ public:
     inline void reset()
     {
         switch (m_kind) {
-        case SH_MARKED_STRING: ((MarkedString&)(*this->m_storage)).reset(); break;
-        case SH_SIZED_STRING:  ((SizedString&)(*this->m_storage)).reset();  break;
+        case SH_MARKED_STRING: asMarked().reset(); break;
+        case SH_SIZED_STRING:  asSized().reset();  break;
         case SH_NONE:
         default:
             assert(0);
@@ -215,8 +236,8 @@ public:
     inline char *data()
     {
         switch (m_kind) {
-        case SH_MARKED_STRING: return ((MarkedString&)(*this->m_storage)).data(); break;
-        case SH_SIZED_STRING:  return ((SizedString&)(*this->m_storage)).data();  break;
+        case SH_MARKED_STRING: return asMarked().data(); break;
+        case SH_SIZED_STRING:  return asSized().data();  break;
         case SH_NONE:
         default:
             assert(0);
@@ -226,8 +247,8 @@ public:
     inline size_t length() const
     {
         switch (m_kind) {
-        case SH_MARKED_STRING: return ((MarkedString&)(*this->m_storage)).length(); break;
-        case SH_SIZED_STRING:  return ((SizedString&)(*this->m_storage)).length();  break;
+        case SH_MARKED_STRING: return asMarked().length(); break;
+        case SH_SIZED_STRING:  return asSized().length();  break;
         case SH_NONE:
         default:
             assert(0);
@@ -237,7 +258,7 @@ public:
     inline void setMark(char mark)
     {
         switch (m_kind) {
-        case SH_MARKED_STRING: ((MarkedString&)(*this->m_storage)).setMark(mark); break;
+        case SH_MARKED_STRING: asMarked().setMark(mark); break;
         case SH_SIZED_STRING:  /* ignore */ break;
         case SH_NONE:
         default:
@@ -248,7 +269,7 @@ public:
     inline char getMark() const
     {
         switch (m_kind) {
-        case SH_MARKED_STRING: return ((MarkedString&)(*this->m_storage)).getMark(); break;
+        case SH_MARKED_STRING: return asMarked().getMark(); break;
         case SH_SIZED_STRING:
         case SH_NONE:
         default:
@@ -401,12 +422,13 @@ bool FileProcessor::processWithSizeOfInputAkaVersionTwo()
     return processStream();
 }
 
-bool FileProcessor::testWhetherPointerPointingInStringIsAtTheEnd(const char *p) const
+bool FileProcessor::testWhetherPointerPointingInStringIsAtTheEnd(const char *p)
+    const
 {
     switch (m_string.getKind()) {
     case SH_MARKED_STRING: return *p == m_string.getMark();
     case SH_SIZED_STRING: {
-        SizedString &ss = m_string.asSized();
+        SizedString const& ss = m_string.asSized();
         size_t len = p - ss.data();
         return len >= ss.length();
     }
@@ -422,7 +444,8 @@ void FileProcessor::processString()
         DOT_ENCOUNTERED
     } state = PASSING;
     char *data = m_string.data();
-    for (char *dst = data; testWhetherPointerPointingInStringIsAtTheEnd(data); ) {
+    char *dst = data;
+    while (testWhetherPointerPointingInStringIsAtTheEnd(data)) {
         switch (state) {
         case PASSING:
             if (*data == '.') state = DOT_ENCOUNTERED;
@@ -452,7 +475,8 @@ StringError MarkedString::add(char x)
     if (x == m_mark) return SERR_ILLIGAL_CHAR;
     size_t len = length();
     const size_t MARKER_ADDITIONAL_LENGTH = 1;
-    if (len + MARKER_ADDITIONAL_LENGTH >= STRING_BUFFER_SIZE) return SERR_NO_MEM;
+    if (len + MARKER_ADDITIONAL_LENGTH >= STRING_BUFFER_SIZE)
+        return SERR_NO_MEM;
     m_buf[len                         ] = x;
     m_buf[len+MARKER_ADDITIONAL_LENGTH] = m_mark;
     return SERR_NO_ERR;
