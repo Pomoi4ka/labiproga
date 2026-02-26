@@ -10,7 +10,7 @@ const char SPACE_SYMBOLS_NO_EOL[] = {' ', '\t'};
 const size_t SPACE_SYMBOLS_NO_EOL_COUNT =
     sizeof SPACE_SYMBOLS_NO_EOL / sizeof SPACE_SYMBOLS_NO_EOL[0];
 
-const size_t STRING_BUFFER_SIZE = 255;
+const size_t STRING_BUFFER_SIZE = 256;
 
 const char *INPUT_FILE_NAME = "input.txt";
 const char *OUTPUT_FILE_NAME = "output.txt";
@@ -24,7 +24,10 @@ static inline bool isSpaceNotEol(char x)
 }
 
 enum Version {
-    VER_V1, VER_V2
+    VER_M_V1,
+    VER_M_V2,
+    VER_S_V1,
+    VER_S_V2
 };
 
 class VersionReader {
@@ -49,24 +52,56 @@ private:
     Version m_ver;
 };
 
+class SizedString {
+    static const size_t INITIAL_CAP = 1;
+    static const size_t CAPACITY_FIELD_SIZE = sizeof(size_t);
+
+    char *m_data;
+    size_t m_length;
+    inline size_t &capacity()
+    { return *(reinterpret_cast<size_t*>(m_data) - 1); }
+    static char *allocWithCapacity(size_t cap);
+
+    // так как c++98 не имеет default, delete конструкторов, то пихнём их
+    // в private без реализации. как это ещё больше обезопасить я не знаю
+    inline void operator=(SizedString);
+    inline SizedString(SizedString const&);
+public:
+    inline explicit SizedString()
+        : m_data(allocWithCapacity(INITIAL_CAP)), m_length(0)
+    {}
+
+    inline ~SizedString() {
+        delete[] (m_data - CAPACITY_FIELD_SIZE);
+    }
+
+    void add(char);
+    inline void reset()             { this->~SizedString();
+                                      new (this) SizedString(); }
+    inline size_t length() const    { return m_length;          }
+    inline const char *data() const { return m_data;            }
+    inline char *data()             { return m_data;            }
+};
+
+enum StringError {
+    SERR_NO_ERR,
+    SERR_NO_MEM,
+    SERR_ILLIGAL_CHAR
+};
+
 struct MarkedString {
 private:
     char m_mark;
     char m_buf[STRING_BUFFER_SIZE];
 
 public:
-    enum Error {
-        NO_ERR,
-        NO_MEM,
-        ILLIGAL_CHAR
-    };
-
-    Error add(char);
+    StringError add(char);
     size_t length() const;
-    inline void reset()            { *m_buf = m_mark;        }
-    inline void setMark(char mark) { m_mark = mark; reset(); }
-    inline char getMark() const    { return m_mark;          }
-    inline char *data()            { return m_buf;           }
+    inline void reset()             { *m_buf = m_mark;        }
+    inline void setMark(char mark)  { m_mark = mark; reset(); }
+    inline char getMark() const     { return m_mark;          }
+    inline char *data()             { return m_buf;           }
+    inline const char *data() const { return m_buf;           }
 
     explicit inline MarkedString() {}
 };
@@ -75,6 +110,7 @@ class FileReader {
     std::ifstream m_file;
     long m_limit;
     size_t m_number;
+    char m_stopSymbol;
 
     int readChar();
     int peekChar();
@@ -86,9 +122,9 @@ public:
         : m_file(), m_limit(-1)
     {}
     bool open(const char *path);
-    bool readMark(MarkedString &);
+    bool readMark(class StringHolder &);
     bool readNumber();
-    bool readStringUntilDelimOrEol(MarkedString &);
+    bool readStringUntilDelimOrEol(class StringHolder &);
     inline void setLimit(size_t limit) { m_limit = limit; };
     inline void skipEverythingUntilDelim()
     { while (peekChar() != STRING_DELIM && !isEof()) readChar(); }
@@ -105,18 +141,168 @@ public:
     }
 };
 
+enum HoldingStringKind {
+    SH_NONE,
+    SH_MARKED_STRING,
+    SH_SIZED_STRING
+};
+
+class StringHolder {
+    static const size_t STORAGE_SIZE =
+        sizeof(MarkedString) > sizeof(SizedString)
+        ? sizeof(MarkedString)
+        : sizeof(SizedString);
+
+    HoldingStringKind m_kind;
+    char m_storage[STORAGE_SIZE];
+public:
+    explicit inline StringHolder()
+        : m_kind(SH_NONE)
+    {}
+
+    inline MarkedString& asMarked() const
+    { if (m_kind == SH_MARKED_STRING) return (MarkedString&)*m_storage; assert(0); }
+    inline SizedString& asSized() const
+    { if (m_kind == SH_SIZED_STRING) return (SizedString&)*m_storage; assert(0); }
+
+    inline HoldingStringKind getKind() const { return m_kind; }
+
+    inline void setKind(HoldingStringKind kind)
+    {
+        this->~StringHolder();
+        m_kind = kind;
+        switch (kind) {
+        case SH_NONE: break;
+        case SH_MARKED_STRING: new (m_storage) MarkedString; break;
+        case SH_SIZED_STRING:  new (m_storage) SizedString;  break;
+        }
+    }
+
+    inline ~StringHolder()
+    {
+        switch (m_kind) {
+        case SH_NONE: break;
+        case SH_MARKED_STRING: ((MarkedString&)(*this->m_storage)).~MarkedString(); break;
+        case SH_SIZED_STRING:  ((SizedString&)(*this->m_storage)).~SizedString();   break;
+        }
+    }
+
+    inline StringError add(char x)
+    {
+        switch (m_kind) {
+        case SH_MARKED_STRING: return ((MarkedString&)(*this->m_storage)).add(x); break;
+        case SH_SIZED_STRING:
+            ((SizedString&)(*this->m_storage)).add(x);
+            return SERR_NO_ERR;
+            break;
+        case SH_NONE:
+        default:
+            assert(0);
+        }
+    }
+
+    inline void reset()
+    {
+        switch (m_kind) {
+        case SH_MARKED_STRING: ((MarkedString&)(*this->m_storage)).reset(); break;
+        case SH_SIZED_STRING:  ((SizedString&)(*this->m_storage)).reset();  break;
+        case SH_NONE:
+        default:
+            assert(0);
+        }
+    }
+
+    inline char *data()
+    {
+        switch (m_kind) {
+        case SH_MARKED_STRING: return ((MarkedString&)(*this->m_storage)).data(); break;
+        case SH_SIZED_STRING:  return ((SizedString&)(*this->m_storage)).data();  break;
+        case SH_NONE:
+        default:
+            assert(0);
+        }
+    }
+
+    inline size_t length() const
+    {
+        switch (m_kind) {
+        case SH_MARKED_STRING: return ((MarkedString&)(*this->m_storage)).length(); break;
+        case SH_SIZED_STRING:  return ((SizedString&)(*this->m_storage)).length();  break;
+        case SH_NONE:
+        default:
+            assert(0);
+        }
+    }
+
+    inline void setMark(char mark)
+    {
+        switch (m_kind) {
+        case SH_MARKED_STRING: ((MarkedString&)(*this->m_storage)).setMark(mark); break;
+        case SH_SIZED_STRING:  /* ignore */ break;
+        case SH_NONE:
+        default:
+            assert(0);
+        }
+    }
+
+    inline char getMark() const
+    {
+        switch (m_kind) {
+        case SH_MARKED_STRING: return ((MarkedString&)(*this->m_storage)).getMark(); break;
+        case SH_SIZED_STRING:
+        case SH_NONE:
+        default:
+            assert(0);
+        }
+    }
+};
+
 class FileProcessor {
-    MarkedString m_string;
-    FileReader m_reader;
+    typedef bool (FileProcessor:: *ProcessFn)();
+
+    StringHolder m_string;
+    FileReader   m_reader;
+    ProcessFn    m_processor;
 
     void processString();
     bool processStream();
-public:
-    typedef bool (FileProcessor:: *ProcessFn)();
-
     bool processWithFileMarkerAkaVersionOne();
     bool processWithSizeOfInputAkaVersionTwo();
+    bool testWhetherPointerPointingInStringIsAtTheEnd(const char *) const;
+public:
+    FileProcessor(Version ver)
+    {
+        switch (ver) {
+        case VER_M_V1:
+        case VER_S_V1:
+            m_processor = &FileProcessor::processWithFileMarkerAkaVersionOne;
+            break;
+        case VER_M_V2:
+        case VER_S_V2:
+            m_processor = &FileProcessor::processWithSizeOfInputAkaVersionTwo;
+            break;
+        default:
+            assert(0 && "unreachable");
+        }
+
+        switch (ver) {
+        case VER_M_V1: case VER_M_V2:
+            m_string.setKind(SH_MARKED_STRING);
+            break;
+        case VER_S_V1: case VER_S_V2:
+            m_string.setKind(SH_SIZED_STRING);
+            break;
+        default:
+            assert(0 && "unreachable");
+        }
+    }
+
+    inline bool operator()() { return (this->*m_processor)(); }
 };
+
+std::ostream &operator<<(std::ostream&, MarkedString const &);
+std::ostream &operator<<(std::ostream&, SizedString const &);
+std::ostream &operator<<(std::ostream&, StringHolder const &);
 
 int main()
 {
@@ -142,42 +328,37 @@ void VersionSelector::promptUser()
 
 void VersionReader::read()
 {
+    char string_type;
     int ver = 0;
     m_errMsg = NULL;
-
     std::cin >> std::noskipws;
-    if (!(std::cin >> ver)) {
-        std::cin.clear();
-        while (std::cin.get() != EOL_CHAR)
-            ;;
-        m_errMsg = "неудалось считать с потока число";
-        return;
-    }
 
-    switch (ver) {
-    case 1: m_ver = VER_V1; break;
-    case 2: m_ver = VER_V2; break;
+    std::cin >> string_type;
+    if (!std::cin) goto fail;
+
+    std::cin >> ver;
+    if (!std::cin) goto fail;
+
+    switch ((string_type|('a'^'A')) << 8 | ver) {
+    case ('m'<<8)|1: m_ver = VER_M_V1; break;
+    case ('m'<<8)|2: m_ver = VER_M_V2; break;
+    case ('s'<<8)|1: m_ver = VER_S_V1; break;
+    case ('s'<<8)|2: m_ver = VER_S_V2; break;
     default:
         m_errMsg = "неверное число версии, доступные номера версий 1 и 2";
     }
+
+    return;
+ fail:
+    std::cin.clear();
+    while (std::cin.get() != EOL_CHAR)
+        ;;
+    m_errMsg = "неудалось считать с потока число";
 }
 
 bool VersionSelector::runCorrespondingVersion() const
 {
-    FileProcessor::ProcessFn fn;
-
-    switch (m_ver) {
-    case VER_V1:
-        fn = &FileProcessor::processWithFileMarkerAkaVersionOne;
-        break;
-    case VER_V2:
-        fn = &FileProcessor::processWithSizeOfInputAkaVersionTwo;
-        break;
-    default:
-        assert(0 && "unreachable");
-    }
-
-    return (FileProcessor().*fn)();
+    return FileProcessor(m_ver)();
 }
 
 bool FileProcessor::processStream()
@@ -192,15 +373,9 @@ bool FileProcessor::processStream()
     }
 
     while (m_reader.readStringUntilDelimOrEol(m_string)) {
-        output << "Исходная строка: ";
-        output.write(m_string.data(), m_string.length());
-        output << EOL_CHAR;
-
-        output << "Новая строка:    ";
-        processString();
-        output.write(m_string.data(), m_string.length());
-        output << EOL_CHAR;
-
+        output << "Исходная строка: " << m_string << EOL_CHAR
+               << "Новая строка:    " << (processString(), m_string)
+               << EOL_CHAR;
         m_string.reset();
         if (!m_reader.skipDelimOrEol()) break;
     }
@@ -226,6 +401,20 @@ bool FileProcessor::processWithSizeOfInputAkaVersionTwo()
     return processStream();
 }
 
+bool FileProcessor::testWhetherPointerPointingInStringIsAtTheEnd(const char *p) const
+{
+    switch (m_string.getKind()) {
+    case SH_MARKED_STRING: return *p == m_string.getMark();
+    case SH_SIZED_STRING: {
+        SizedString &ss = m_string.asSized();
+        size_t len = p - ss.data();
+        return len >= ss.length();
+    }
+    case SH_NONE:
+    default: assert(0);
+    }
+}
+
 void FileProcessor::processString()
 {
     enum {
@@ -233,7 +422,7 @@ void FileProcessor::processString()
         DOT_ENCOUNTERED
     } state = PASSING;
     char *data = m_string.data();
-    for (char *dst = data; *dst != m_string.getMark(); ) {
+    for (char *dst = data; testWhetherPointerPointingInStringIsAtTheEnd(data); ) {
         switch (state) {
         case PASSING:
             if (*data == '.') state = DOT_ENCOUNTERED;
@@ -258,15 +447,15 @@ size_t MarkedString::length() const
     return len;
 }
 
-MarkedString::Error MarkedString::add(char x)
+StringError MarkedString::add(char x)
 {
-    if (x == m_mark) return ILLIGAL_CHAR;
+    if (x == m_mark) return SERR_ILLIGAL_CHAR;
     size_t len = length();
     const size_t MARKER_ADDITIONAL_LENGTH = 1;
-    if (len + MARKER_ADDITIONAL_LENGTH >= STRING_BUFFER_SIZE) return NO_MEM;
+    if (len + MARKER_ADDITIONAL_LENGTH >= STRING_BUFFER_SIZE) return SERR_NO_MEM;
     m_buf[len                         ] = x;
     m_buf[len+MARKER_ADDITIONAL_LENGTH] = m_mark;
-    return NO_ERR;
+    return SERR_NO_ERR;
 }
 
 bool FileReader::open(const char *path)
@@ -281,9 +470,10 @@ bool FileReader::open(const char *path)
     return !err;
 }
 
-bool FileReader::readMark(MarkedString &s)
+bool FileReader::readMark(StringHolder &s)
 {
-    s.setMark(readChar());
+    m_stopSymbol = readChar();
+    s.setMark(m_stopSymbol);
     skipEverythingUntilEol();
     skipDelimOrEol();
     return !isEof();
@@ -299,21 +489,23 @@ bool FileReader::readNumber()
     return true;
 }
 
-bool FileReader::readStringUntilDelimOrEol(MarkedString &s)
+bool FileReader::readStringUntilDelimOrEol(StringHolder &s)
 {
     for (;;) {
         char next = peekChar();
         if (next == STRING_DELIM || next == EOL_CHAR) return true;
         if (isEof()) return !!s.length();
-        MarkedString::Error err = s.add(readChar());
+        StringError err;
+        char c = readChar();
+        if (c == m_stopSymbol) goto stopSymbolEncountered;
+        err = s.add(c);
         switch (err) {
-        case MarkedString::NO_ERR: break;
-        case MarkedString::ILLIGAL_CHAR:
+        case SERR_NO_ERR: break;
+        case SERR_ILLIGAL_CHAR:
+        stopSymbolEncountered:
             skipEverythingUntilDelim();
             return true;
-        case MarkedString::NO_MEM:
-            return true;
-            // std::cerr << "ОШИБКА: слишком длинная строка" << std::endl;
+        case SERR_NO_MEM: return true;
         default: assert(0 && "unreachable");
         }
     }
@@ -338,4 +530,50 @@ int FileReader::readChar()
     if (!m_limit) return 0;
     m_limit -= 1;
     return m_file.get();
+}
+
+char *SizedString::allocWithCapacity(size_t cap)
+{
+    char *data = new char[cap + CAPACITY_FIELD_SIZE];
+    reinterpret_cast<size_t&>(*data) = cap;
+    return data + CAPACITY_FIELD_SIZE;
+}
+
+void SizedString::add(char x)
+{
+    if (length() >= capacity()) {
+        ssize_t oldCap = capacity();
+        capacity() *= 2;
+        char *new_data = allocWithCapacity(capacity());
+        for (ssize_t i = -CAPACITY_FIELD_SIZE; i < oldCap; ++i) {
+            new_data[i] = m_data[i];
+        }
+        delete[] (m_data - CAPACITY_FIELD_SIZE);
+        m_data = new_data;
+    }
+
+    m_data[m_length++] = x;
+}
+
+std::ostream &operator<<(std::ostream& s, MarkedString const &m)
+{
+    s.write(m.data(), m.length());
+    return s;
+}
+
+std::ostream &operator<<(std::ostream& s, SizedString const &ss)
+{
+    s.write(ss.data(), ss.length());
+    return s;
+}
+
+std::ostream &operator<<(std::ostream& s, StringHolder const &sh)
+{
+    switch (sh.getKind()) {
+    case SH_MARKED_STRING: return s << sh.asMarked();
+    case SH_SIZED_STRING: return s << sh.asSized();
+    case SH_NONE:
+    default:
+        assert(0);
+    }
 }
