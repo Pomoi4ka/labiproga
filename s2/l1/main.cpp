@@ -58,8 +58,7 @@ class SizedString {
 
     char *m_data;
     size_t m_length;
-    inline size_t &capacity()
-    { return *(reinterpret_cast<size_t*>(m_data) - 1); }
+    inline size_t &capacity();
     static char *allocWithCapacity(size_t cap);
 
     // так как c++98 не имеет default, delete конструкторов, то пихнём их
@@ -67,20 +66,13 @@ class SizedString {
     inline void operator=(SizedString);
     inline SizedString(SizedString const&);
 public:
-    inline explicit SizedString()
-        : m_data(allocWithCapacity(INITIAL_CAP)), m_length(0)
-    {}
-
-    inline ~SizedString() {
-        delete[] (m_data - CAPACITY_FIELD_SIZE);
-    }
-
+    inline explicit SizedString();
+    inline ~SizedString();
     void add(char);
-    inline void reset()             { this->~SizedString();
-                                      new (this) SizedString(); }
-    inline size_t length() const    { return m_length;          }
-    inline const char *data() const { return m_data;            }
-    inline char *data()             { return m_data;            }
+    inline void reset();
+    inline size_t length() const;
+    inline const char *data() const;
+    inline char *data();
 };
 
 enum StringError {
@@ -561,6 +553,30 @@ char *SizedString::allocWithCapacity(size_t cap)
     char *data = new char[cap + CAPACITY_FIELD_SIZE];
     reinterpret_cast<size_t&>(*data) = cap;
     return data + CAPACITY_FIELD_SIZE;
+}
+
+size_t      SizedString::length() const { return m_length; }
+const char *SizedString::data()   const { return m_data;   }
+char       *SizedString::data()         { return m_data;   }
+
+void SizedString::reset()
+{
+    this->~SizedString();
+    new (this) SizedString();
+}
+
+SizedString::~SizedString()
+{
+    delete[] (m_data - CAPACITY_FIELD_SIZE);
+}
+
+SizedString::SizedString()
+    : m_data(allocWithCapacity(INITIAL_CAP)), m_length(0)
+{}
+
+size_t &SizedString::capacity()
+{
+    return *(reinterpret_cast<size_t*>(m_data) - 1);
 }
 
 void SizedString::add(char x)
