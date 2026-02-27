@@ -81,6 +81,7 @@ public:
     inline size_t length() const    { return m_length;          }
     inline const char *data() const { return m_data;            }
     inline char *data()             { return m_data;            }
+    void truncate(size_t);
 };
 
 enum StringError {
@@ -290,6 +291,7 @@ class FileProcessor {
     bool processWithFileMarkerAkaVersionOne();
     bool processWithSizeOfInputAkaVersionTwo();
     bool testWhetherPointerPointingInStringIsAtTheEnd(const char *) const;
+    void termiateStringAtPointer(char *);
 public:
     FileProcessor(Version ver)
     {
@@ -422,6 +424,20 @@ bool FileProcessor::processWithSizeOfInputAkaVersionTwo()
     return processStream();
 }
 
+void FileProcessor::termiateStringAtPointer(char *p)
+{
+    switch (m_string.getKind()) {
+    case SH_MARKED_STRING: *p = m_string.getMark(); break;
+    case SH_SIZED_STRING: {
+        SizedString &ss = m_string.asSized();
+        size_t len = p - ss.data();
+        ss.truncate(len);
+    } break;
+    case SH_NONE:
+    default: assert(0);
+    }
+}
+
 bool FileProcessor::testWhetherPointerPointingInStringIsAtTheEnd(const char *p)
     const
 {
@@ -445,7 +461,7 @@ void FileProcessor::processString()
     } state = PASSING;
     char *data = m_string.data();
     char *dst = data;
-    while (testWhetherPointerPointingInStringIsAtTheEnd(data)) {
+    while (!testWhetherPointerPointingInStringIsAtTheEnd(data)) {
         switch (state) {
         case PASSING:
             if (*data == '.') state = DOT_ENCOUNTERED;
@@ -460,6 +476,7 @@ void FileProcessor::processString()
         }
         *dst++ = *data++;
     }
+    termiateStringAtPointer(dst);
 }
 
 size_t MarkedString::length() const
@@ -554,6 +571,12 @@ int FileReader::readChar()
     if (!m_limit) return 0;
     m_limit -= 1;
     return m_file.get();
+}
+
+void SizedString::truncate(size_t size)
+{
+    if (size > m_length) return;
+    m_length = size;
 }
 
 char *SizedString::allocWithCapacity(size_t cap)
