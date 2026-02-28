@@ -52,6 +52,12 @@ private:
     Version m_ver;
 };
 
+enum StringError {
+    SERR_NO_ERR,
+    SERR_NO_MEM,
+    SERR_ILLIGAL_CHAR
+};
+
 class SizedString {
     static const size_t INITIAL_CAP = 1;
     static const size_t CAPACITY_FIELD_SIZE = sizeof(size_t);
@@ -68,18 +74,12 @@ class SizedString {
 public:
     inline explicit SizedString();
     inline ~SizedString();
-    void add(char);
+    StringError add(char);
     inline void reset();
     inline size_t length() const;
     inline const char *data() const;
     inline char *data();
     void truncate(size_t);
-};
-
-enum StringError {
-    SERR_NO_ERR,
-    SERR_NO_MEM,
-    SERR_ILLIGAL_CHAR
 };
 
 struct MarkedString {
@@ -146,8 +146,24 @@ class StringHolder {
         ? sizeof(MarkedString)
         : sizeof(SizedString);
 
+    class Object;
+    typedef void (Object:: *GenericMethod)();
+
+    enum Method {
+        M_getMark,
+        M_setMark,
+        M_reset,
+        M_length,
+        M_data,
+        M_Cdata,
+        M_add,
+        __method_count
+    };
+
     HoldingStringKind m_kind;
     char m_storage[STORAGE_SIZE];
+    GenericMethod vtable[__method_count];
+
 public:
     explicit inline StringHolder()
         : m_kind(SH_NONE)
@@ -166,19 +182,6 @@ public:
         assert(0);
     }
 
-    inline MarkedString const& asMarked() const
-    {
-        if (m_kind == SH_MARKED_STRING)
-            return reinterpret_cast<MarkedString const&>(*m_storage);
-        assert(0);
-    }
-    inline SizedString const& asSized() const
-    {
-        if (m_kind == SH_SIZED_STRING)
-            return reinterpret_cast<SizedString const&>(*m_storage);
-        assert(0);
-    }
-
     inline HoldingStringKind getKind() const { return m_kind; }
 
     inline void setKind(HoldingStringKind kind)
@@ -187,13 +190,34 @@ public:
         m_kind = kind;
         switch (kind) {
         case SH_NONE: break;
-        case SH_MARKED_STRING: new (m_storage) MarkedString; break;
-        case SH_SIZED_STRING:  new (m_storage) SizedString;  break;
+        case SH_MARKED_STRING:
+            new (m_storage) MarkedString;
+            vtable[M_add] = reinterpret_cast<GenericMethod>(&MarkedString::add);
+            vtable[M_getMark]  = reinterpret_cast<GenericMethod>(&MarkedString::getMark);
+            vtable[M_setMark]  = reinterpret_cast<GenericMethod>(&MarkedString::setMark);
+            vtable[M_reset]    = reinterpret_cast<GenericMethod>(&MarkedString::reset);
+            vtable[M_length]   = reinterpret_cast<GenericMethod>(&MarkedString::length);
+            vtable[M_Cdata]    = reinterpret_cast<GenericMethod>((const char *(MarkedString::*)() const)&MarkedString::data);
+            vtable[M_data]     = reinterpret_cast<GenericMethod>((char *(MarkedString::*)())&MarkedString::data);
+            vtable[M_add]      = reinterpret_cast<GenericMethod>(&MarkedString::add);
+            break;
+        case SH_SIZED_STRING:
+            new (m_storage) SizedString;
+            vtable[M_add]      = reinterpret_cast<GenericMethod>(&SizedString::add);
+            vtable[M_getMark]  = NULL;
+            vtable[M_setMark]  = NULL;
+            vtable[M_reset]    = reinterpret_cast<GenericMethod>(&SizedString::reset);
+            vtable[M_length]   = reinterpret_cast<GenericMethod>(&SizedString::length);
+            vtable[M_Cdata]    = reinterpret_cast<GenericMethod>((const char *(SizedString::*)() const)&SizedString::data);
+            vtable[M_data]     = reinterpret_cast<GenericMethod>((char *(SizedString::*)())&SizedString::data);
+            vtable[M_add]      = reinterpret_cast<GenericMethod>(&SizedString::add);
+            break;
         }
     }
 
     inline ~StringHolder()
     {
+        // низя взять указатель на деструктор ;_;
         switch (m_kind) {
         case SH_NONE: break;
         case SH_MARKED_STRING: asMarked().~MarkedString(); break;
@@ -203,71 +227,45 @@ public:
 
     inline StringError add(char x)
     {
-        switch (m_kind) {
-        case SH_MARKED_STRING: return asMarked().add(x); break;
-        case SH_SIZED_STRING:
-            asSized().add(x);
-            return SERR_NO_ERR;
-            break;
-        case SH_NONE:
-        default:
-            assert(0);
-        }
+        return (((Object*)m_storage)->*reinterpret_cast
+                <StringError (Object::*)(char)>(vtable[M_add]))(x);
     }
 
     inline void reset()
     {
-        switch (m_kind) {
-        case SH_MARKED_STRING: asMarked().reset(); break;
-        case SH_SIZED_STRING:  asSized().reset();  break;
-        case SH_NONE:
-        default:
-            assert(0);
-        }
+        return (((Object*)m_storage)->*reinterpret_cast
+                <void (Object::*)()>(vtable[M_reset]))();
     }
 
     inline char *data()
     {
-        switch (m_kind) {
-        case SH_MARKED_STRING: return asMarked().data(); break;
-        case SH_SIZED_STRING:  return asSized().data();  break;
-        case SH_NONE:
-        default:
-            assert(0);
-        }
+        return (((Object*)m_storage)->*reinterpret_cast
+                <char *(Object::*)()>(vtable[M_data]))();
+    }
+
+    inline const char *data() const
+    {
+        return (((Object*)m_storage)->*reinterpret_cast
+                <const char *(Object::*)() const>(vtable[M_Cdata]))();
     }
 
     inline size_t length() const
     {
-        switch (m_kind) {
-        case SH_MARKED_STRING: return asMarked().length(); break;
-        case SH_SIZED_STRING:  return asSized().length();  break;
-        case SH_NONE:
-        default:
-            assert(0);
-        }
+        return (((Object*)m_storage)->*reinterpret_cast
+                <size_t (Object::*)()>(vtable[M_length]))();
     }
 
     inline void setMark(char mark)
     {
-        switch (m_kind) {
-        case SH_MARKED_STRING: asMarked().setMark(mark); break;
-        case SH_SIZED_STRING:  /* ignore */ break;
-        case SH_NONE:
-        default:
-            assert(0);
-        }
+        if (!vtable[M_setMark]) return;
+        return (((Object*)m_storage)->*reinterpret_cast
+                <void (Object::*)(char)>(vtable[M_setMark]))(mark);
     }
 
     inline char getMark() const
     {
-        switch (m_kind) {
-        case SH_MARKED_STRING: return asMarked().getMark(); break;
-        case SH_SIZED_STRING:
-        case SH_NONE:
-        default:
-            assert(0);
-        }
+        return (((Object*)m_storage)->*reinterpret_cast
+                <char (Object::*)() const>(vtable[M_getMark]))();
     }
 };
 
@@ -436,9 +434,8 @@ bool FileProcessor::testWhetherPointerPointingInStringIsAtTheEnd(const char *p)
     switch (m_string.getKind()) {
     case SH_MARKED_STRING: return *p == m_string.getMark();
     case SH_SIZED_STRING: {
-        SizedString const& ss = m_string.asSized();
-        size_t len = p - ss.data();
-        return len >= ss.length();
+        size_t len = p - m_string.data();
+        return len >= m_string.length();
     }
     case SH_NONE:
     default: assert(0);
@@ -602,7 +599,7 @@ size_t &SizedString::capacity()
     return *(reinterpret_cast<size_t*>(m_data) - 1);
 }
 
-void SizedString::add(char x)
+StringError SizedString::add(char x)
 {
     if (length() >= capacity()) {
         ssize_t oldCap = capacity();
@@ -616,27 +613,10 @@ void SizedString::add(char x)
     }
 
     m_data[m_length++] = x;
-}
-
-std::ostream &operator<<(std::ostream& s, MarkedString const &m)
-{
-    s.write(m.data(), m.length());
-    return s;
-}
-
-std::ostream &operator<<(std::ostream& s, SizedString const &ss)
-{
-    s.write(ss.data(), ss.length());
-    return s;
+    return SERR_NO_ERR;
 }
 
 std::ostream &operator<<(std::ostream& s, StringHolder const &sh)
 {
-    switch (sh.getKind()) {
-    case SH_MARKED_STRING: return s << sh.asMarked();
-    case SH_SIZED_STRING: return s << sh.asSized();
-    case SH_NONE:
-    default:
-        assert(0);
-    }
+    return s.write(sh.data(), sh.length());
 }
