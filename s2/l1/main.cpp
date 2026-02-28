@@ -192,7 +192,7 @@ public:
         case SH_NONE: break;
         case SH_MARKED_STRING:
             new (m_storage) MarkedString;
-            vtable[M_add] = reinterpret_cast<GenericMethod>(&MarkedString::add);
+            vtable[M_add]      = reinterpret_cast<GenericMethod>(&MarkedString::add);
             vtable[M_getMark]  = reinterpret_cast<GenericMethod>(&MarkedString::getMark);
             vtable[M_setMark]  = reinterpret_cast<GenericMethod>(&MarkedString::setMark);
             vtable[M_reset]    = reinterpret_cast<GenericMethod>(&MarkedString::reset);
@@ -341,18 +341,18 @@ void VersionSelector::promptUser()
 
 void VersionReader::read()
 {
-    char string_type;
+    char stringType;
     int ver = 0;
     m_errMsg = NULL;
     std::cin >> std::noskipws;
 
-    std::cin >> string_type;
+    std::cin >> stringType;
     if (!std::cin) goto fail;
 
     std::cin >> ver;
     if (!std::cin) goto fail;
 
-    switch ((string_type|('a'^'A')) << 8 | ver) {
+    switch ((stringType|('a'^'A')) << 8 | ver) {
     case ('m'<<8)|1: m_ver = VER_M_V1; break;
     case ('m'<<8)|2: m_ver = VER_M_V2; break;
     case ('s'<<8)|1: m_ver = VER_S_V1; break;
