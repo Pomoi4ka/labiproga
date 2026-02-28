@@ -313,8 +313,6 @@ public:
     inline bool operator()() { return (this->*m_processor)(); }
 };
 
-std::ostream &operator<<(std::ostream&, MarkedString const &);
-std::ostream &operator<<(std::ostream&, SizedString const &);
 std::ostream &operator<<(std::ostream&, StringHolder const &);
 
 int main()
