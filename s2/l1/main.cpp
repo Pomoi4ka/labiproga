@@ -162,7 +162,7 @@ class StringHolder {
 
     HoldingStringKind m_kind;
     char m_storage[STORAGE_SIZE];
-    GenericMethod vtable[__method_count];
+    GenericMethod m_vtable[__method_count];
 
 public:
     explicit inline StringHolder()
@@ -192,25 +192,25 @@ public:
         case SH_NONE: break;
         case SH_MARKED_STRING:
             new (m_storage) MarkedString;
-            vtable[M_add]      = reinterpret_cast<GenericMethod>(&MarkedString::add);
-            vtable[M_getMark]  = reinterpret_cast<GenericMethod>(&MarkedString::getMark);
-            vtable[M_setMark]  = reinterpret_cast<GenericMethod>(&MarkedString::setMark);
-            vtable[M_reset]    = reinterpret_cast<GenericMethod>(&MarkedString::reset);
-            vtable[M_length]   = reinterpret_cast<GenericMethod>(&MarkedString::length);
-            vtable[M_Cdata]    = reinterpret_cast<GenericMethod>((const char *(MarkedString::*)() const)&MarkedString::data);
-            vtable[M_data]     = reinterpret_cast<GenericMethod>((char *(MarkedString::*)())&MarkedString::data);
-            vtable[M_add]      = reinterpret_cast<GenericMethod>(&MarkedString::add);
+            m_vtable[M_add]      = reinterpret_cast<GenericMethod>(&MarkedString::add);
+            m_vtable[M_getMark]  = reinterpret_cast<GenericMethod>(&MarkedString::getMark);
+            m_vtable[M_setMark]  = reinterpret_cast<GenericMethod>(&MarkedString::setMark);
+            m_vtable[M_reset]    = reinterpret_cast<GenericMethod>(&MarkedString::reset);
+            m_vtable[M_length]   = reinterpret_cast<GenericMethod>(&MarkedString::length);
+            m_vtable[M_Cdata]    = reinterpret_cast<GenericMethod>((const char *(MarkedString::*)() const)&MarkedString::data);
+            m_vtable[M_data]     = reinterpret_cast<GenericMethod>((char *(MarkedString::*)())&MarkedString::data);
+            m_vtable[M_add]      = reinterpret_cast<GenericMethod>(&MarkedString::add);
             break;
         case SH_SIZED_STRING:
             new (m_storage) SizedString;
-            vtable[M_add]      = reinterpret_cast<GenericMethod>(&SizedString::add);
-            vtable[M_getMark]  = NULL;
-            vtable[M_setMark]  = NULL;
-            vtable[M_reset]    = reinterpret_cast<GenericMethod>(&SizedString::reset);
-            vtable[M_length]   = reinterpret_cast<GenericMethod>(&SizedString::length);
-            vtable[M_Cdata]    = reinterpret_cast<GenericMethod>((const char *(SizedString::*)() const)&SizedString::data);
-            vtable[M_data]     = reinterpret_cast<GenericMethod>((char *(SizedString::*)())&SizedString::data);
-            vtable[M_add]      = reinterpret_cast<GenericMethod>(&SizedString::add);
+            m_vtable[M_add]      = reinterpret_cast<GenericMethod>(&SizedString::add);
+            m_vtable[M_getMark]  = NULL;
+            m_vtable[M_setMark]  = NULL;
+            m_vtable[M_reset]    = reinterpret_cast<GenericMethod>(&SizedString::reset);
+            m_vtable[M_length]   = reinterpret_cast<GenericMethod>(&SizedString::length);
+            m_vtable[M_Cdata]    = reinterpret_cast<GenericMethod>((const char *(SizedString::*)() const)&SizedString::data);
+            m_vtable[M_data]     = reinterpret_cast<GenericMethod>((char *(SizedString::*)())&SizedString::data);
+            m_vtable[M_add]      = reinterpret_cast<GenericMethod>(&SizedString::add);
             break;
         }
     }
@@ -228,44 +228,44 @@ public:
     inline StringError add(char x)
     {
         return (((Object*)m_storage)->*reinterpret_cast
-                <StringError (Object::*)(char)>(vtable[M_add]))(x);
+                <StringError (Object::*)(char)>(m_vtable[M_add]))(x);
     }
 
     inline void reset()
     {
         return (((Object*)m_storage)->*reinterpret_cast
-                <void (Object::*)()>(vtable[M_reset]))();
+                <void (Object::*)()>(m_vtable[M_reset]))();
     }
 
     inline char *data()
     {
         return (((Object*)m_storage)->*reinterpret_cast
-                <char *(Object::*)()>(vtable[M_data]))();
+                <char *(Object::*)()>(m_vtable[M_data]))();
     }
 
     inline const char *data() const
     {
         return (((Object*)m_storage)->*reinterpret_cast
-                <const char *(Object::*)() const>(vtable[M_Cdata]))();
+                <const char *(Object::*)() const>(m_vtable[M_Cdata]))();
     }
 
     inline size_t length() const
     {
         return (((Object*)m_storage)->*reinterpret_cast
-                <size_t (Object::*)()>(vtable[M_length]))();
+                <size_t (Object::*)()>(m_vtable[M_length]))();
     }
 
     inline void setMark(char mark)
     {
-        if (!vtable[M_setMark]) return;
+        if (!m_vtable[M_setMark]) return;
         return (((Object*)m_storage)->*reinterpret_cast
-                <void (Object::*)(char)>(vtable[M_setMark]))(mark);
+                <void (Object::*)(char)>(m_vtable[M_setMark]))(mark);
     }
 
     inline char getMark() const
     {
         return (((Object*)m_storage)->*reinterpret_cast
-                <char (Object::*)() const>(vtable[M_getMark]))();
+                <char (Object::*)() const>(m_vtable[M_getMark]))();
     }
 };
 
