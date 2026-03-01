@@ -1,0 +1,14 @@
+section products
+
+p1 500
+p2 120
+
+section tasks
+
+a1 p1 2
+a2 p2 3
+
+section finance
+
+200 12
+100 4
