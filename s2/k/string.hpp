@@ -1,7 +1,9 @@
 #ifndef STRING_HPP_
 #define STRING_HPP_
 
-static bool isSpace(char x)
+#include "hash.hpp"
+
+static inline bool isSpace(char x)
 {
     switch (x) {
     case ' ': case '\n': case '\t':
@@ -14,16 +16,19 @@ class String {
     char *m_data;
     size_t m_count;
     size_t m_cap;
-    inline void operator=(String);
 public:
     inline String();
     inline ~String();
     inline String(String const &other);
-    static String readWordFromStream(std::istream &s);
+    inline String &operator=(String const &);
+    inline static String readWordFromStream(std::istream &s);
     inline const char *data() const;
     inline size_t length() const;
-    inline void add(char x);
     inline void moved();
+    inline void add(char x);
+
+    inline bool eq(String const &other) const;
+    inline hash_t hash() const;
 };
 
 inline std::ostream &operator<<(std::ostream &strm, String const &s)
@@ -45,11 +50,11 @@ String::~String()
 
 String::String(String const &other)
     : m_data(new char[other.m_cap])
+    , m_count(other.m_count)
     , m_cap(other.m_cap)
 {
     for (size_t i = 0; i < other.m_count; ++i)
         m_data[i] = other.m_data[i];
-    m_count = other.m_count;
 }
 
 String String::readWordFromStream(std::istream &s)
@@ -75,6 +80,33 @@ void String::add(char x)
         m_data = new_data;
     }
     m_data[m_count++] = x;
+}
+
+bool String::eq(String const &other) const
+{
+    if (m_count != other.m_count) return false;
+    for (size_t i = 0; i < m_count && i < other.m_count; i++)
+        if (m_data[i] != other.m_data[i])
+            return false;
+    return true;
+}
+
+hash_t String::hash() const
+{
+    return dummyHash(m_data, m_count);
+}
+
+String &String::operator=(String const &other)
+{
+    this->~String();
+    return *new (this) String(other);
+}
+
+void String::moved()
+{
+    m_data = NULL;
+    m_count = 0;
+    m_cap = 0;
 }
 
 #endif // STRING_HPP_
