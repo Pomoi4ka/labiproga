@@ -21,6 +21,8 @@ public:
     inline ~String();
     inline String(String const &other);
     inline String &operator=(String const &);
+    inline bool operator==(const char *) const;
+    inline bool operator!=(const char *) const;
     inline static String readWordFromStream(std::istream &s);
     inline const char *data() const;
     inline size_t length() const;
@@ -29,6 +31,7 @@ public:
 
     inline bool eq(String const &other) const;
     inline hash_t hash() const;
+    inline void destroy();
 };
 
 inline std::ostream &operator<<(std::ostream &strm, String const &s)
@@ -108,5 +111,22 @@ void String::moved()
     m_count = 0;
     m_cap = 0;
 }
+
+bool String::operator!=(const char *cstr) const
+{
+    return !(*this == cstr);
+}
+
+bool String::operator==(const char *cstr) const
+{
+    const char *data = m_data;
+    const char *end = m_data + m_count;
+    while (*cstr && data < end) {
+        if (*data++ != *cstr++) return false;
+    }
+    return *cstr == 0 && data == end;
+}
+
+void String::destroy() { this->~String(); }
 
 #endif // STRING_HPP_

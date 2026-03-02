@@ -39,6 +39,9 @@ private:
     inline void copyInto(size_t index, Item *item);
     inline ssize_t findItem(Item *item) const;
     inline void resize();
+
+    inline HashMap(HashMap const &);
+    inline void operator=(HashMap);
 public:
     inline HashMap(size_t itemSize, EqMethod eq, HashMethod hash);
     inline HashMap(size_t itemSize, EqMethod eq, HashMethod hash,
@@ -163,11 +166,9 @@ HashMap::HashMap(size_t itemSize, EqMethod eq, HashMethod hash,
 
 HashMap::~HashMap()
 {
-    if (m_destroy) {
-        for (Iterator it = iter(); it; ++it) {
+    if (m_destroy)
+        for (Iterator it = iter(); it; ++it)
             (*it->*m_destroy)();
-        }
-    }
 
     if (m_items)  delete[] (char *)m_items;
     if (m_bitmap) delete[] m_bitmap;
@@ -222,7 +223,7 @@ HashMap::Iterator::Iterator(HashMap &map)
     : m_map(map)
     , m_index()
 {
-    while (!m_map.bitmapAt(m_index)) m_index++;
+    while (*this && !m_map.bitmapAt(m_index)) m_index++;
 }
 
 
