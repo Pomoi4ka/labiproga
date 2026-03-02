@@ -18,6 +18,8 @@ public:
 
     typedef hash_t (Item:: *HashMethod)() const;
     typedef bool (Item:: *EqMethod)(Item const &) const;
+    typedef void (Item:: *MovedMethod)() const;
+    typedef void (Item:: *DestroyMethod)() const;
 private:
     unsigned char *m_bitmap;
     void    *m_items;
@@ -25,8 +27,10 @@ private:
     size_t   m_count;
     size_t   m_cap;
 
-    EqMethod   m_eq;
-    HashMethod m_hash;
+    EqMethod      m_eq;
+    HashMethod    m_hash;
+    MovedMethod   m_moved;
+    DestroyMethod m_destroy;
 
     inline bool bitmapAt(size_t index) const;
     inline const Item *itemAt(size_t index) const;
@@ -37,6 +41,8 @@ private:
     inline void resize();
 public:
     inline HashMap(size_t itemSize, EqMethod eq, HashMethod hash);
+    inline HashMap(size_t itemSize, EqMethod eq, HashMethod hash,
+                   MovedMethod moved, DestroyMethod destroy);
     inline ~HashMap();
     inline Item *get(Item *key);
     inline const Item *get(Item *key) const;
@@ -138,10 +144,31 @@ HashMap::HashMap(size_t itemSize, EqMethod eq, HashMethod hash)
     , m_cap()
     , m_eq(eq)
     , m_hash(hash)
+    , m_moved()
+    , m_destroy()
+{}
+
+HashMap::HashMap(size_t itemSize, EqMethod eq, HashMethod hash,
+                 MovedMethod moved, DestroyMethod destroy)
+    : m_bitmap()
+    , m_items()
+    , m_itemSize(itemSize)
+    , m_count()
+    , m_cap()
+    , m_eq(eq)
+    , m_hash(hash)
+    , m_moved(moved)
+    , m_destroy(destroy)
 {}
 
 HashMap::~HashMap()
 {
+    if (m_destroy) {
+        for (Iterator it = iter(); it; ++it) {
+            (*it->*m_destroy)();
+        }
+    }
+
     if (m_items)  delete[] (char *)m_items;
     if (m_bitmap) delete[] m_bitmap;
 }
@@ -165,7 +192,9 @@ bool HashMap::remove(HashMap::Item *key)
     ssize_t index = findItem(key);
     if (index < 0) return false;
 
+    if (m_destroy) (itemAt(index)->*m_destroy)();
     m_bitmap[index>>3] &= ~(1<<(index&7));
+    m_count--;
 
     return true;
 }
@@ -182,6 +211,7 @@ bool HashMap::insert(HashMap::Item *item)
     }
 
     copyInto(index, item);
+    if (m_moved) (item->*m_moved)();
     m_bitmap[index>>3] |= 1<<(index&7);
     m_count++;
 

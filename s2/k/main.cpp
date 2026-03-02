@@ -11,9 +11,25 @@ int main()
 
     struct Words {
         String key, val;
+
+        void moved()
+        {
+            key.moved();
+            val.moved();
+        }
+
+        void destroy()
+        {
+            key.~String();
+            val.~String();
+        }
     };
 
-    HashMap map(sizeof(Words), (HashMap::EqMethod)&String::eq, (HashMap::HashMethod)&String::hash);
+    HashMap map(sizeof(Words),
+                (HashMap::EqMethod)&String::eq,
+                (HashMap::HashMethod)&String::hash,
+                (HashMap::MovedMethod)&Words::moved,
+                (HashMap::DestroyMethod)&Words::destroy);
 
     String prev;
     while (!f.eof()) {
@@ -21,14 +37,8 @@ int main()
         if (prev.length()) {
             Words w = {prev, s};
             Words *old = (Words *)map.get((HashMap::Item *)&prev);
-            if (old) {
-                map.remove((HashMap::Item *)old);
-                old->key.~String();
-                old->val.~String();
-            }
+            if (old) map.remove((HashMap::Item *)old);
             map.insert((HashMap::Item *)&w);
-            w.key.moved();
-            w.val.moved();
             prev = s;
         } else {
             prev = s;
@@ -38,8 +48,6 @@ int main()
     for (HashMap::Iterator iter = map.iter(); iter; ++iter) {
         Words *words = (Words *)*iter;
         std::cout << words->key << " => " << words->val << std::endl;
-        words->key.~String();
-        words->val.~String();
     }
 
     return 0;

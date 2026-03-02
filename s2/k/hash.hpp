@@ -5,7 +5,7 @@ typedef unsigned hash_t;
 
 static inline hash_t dummyHash(const void *data, size_t len)
 {
-    hash_t h = 1931;
+    hash_t h = 0x63fcba32;
     const char *d = reinterpret_cast<const char *>(data);
 
     for (size_t i = 0; i < len; ++i) {
