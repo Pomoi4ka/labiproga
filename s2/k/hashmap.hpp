@@ -11,7 +11,17 @@ public:
         size_t m_index;
     public:
         inline Iterator(HashMap &map);
-        inline Item *operator*();
+        inline Item *operator*() const;
+        inline void operator++();
+        inline operator bool() const;
+    };
+
+    class ConstIterator {
+        HashMap const &m_map;
+        size_t m_index;
+    public:
+        inline ConstIterator(HashMap const &map);
+        inline const Item *operator*() const;
         inline void operator++();
         inline operator bool() const;
     };
@@ -52,7 +62,10 @@ public:
     inline bool insert(Item *item);
     inline bool remove(Item *key);
     inline Iterator iter();
+    inline ConstIterator iter() const;
     inline size_t size() const;
+    inline void moved();
+    inline void destroy();
 };
 
 bool HashMap::bitmapAt(size_t index) const
@@ -226,8 +239,7 @@ HashMap::Iterator::Iterator(HashMap &map)
     while (*this && !m_map.bitmapAt(m_index)) m_index++;
 }
 
-
-HashMap::Item *HashMap::Iterator::operator*()
+HashMap::Item *HashMap::Iterator::operator*() const
 {
     return m_map.itemAt(m_index);
 }
@@ -245,8 +257,52 @@ void HashMap::Iterator::operator++()
     }
 }
 
+void HashMap::moved()
+{
+    m_bitmap = NULL;
+    m_items = NULL;
+    m_count = 0;
+    m_cap = 0;
+}
+
+void HashMap::destroy()
+{
+    this->~HashMap();
+    moved();
+}
+
+
 HashMap::Iterator::operator bool() const { return m_index < m_map.m_cap; }
 HashMap::Iterator HashMap::iter() { return *this; }
 size_t HashMap::size() const { return m_count; }
+
+HashMap::ConstIterator::ConstIterator(HashMap const &map)
+    : m_map(map)
+    , m_index()
+{
+    while (*this && !m_map.bitmapAt(m_index)) m_index++;
+}
+
+const HashMap::Item *HashMap::ConstIterator::operator*() const
+{
+    return m_map.itemAt(m_index);
+}
+
+void HashMap::ConstIterator::operator++()
+{
+    if (!*this) return;
+
+    if (m_map.bitmapAt(m_index))
+        ++m_index;
+
+    while (*this) {
+        if (m_map.bitmapAt(m_index)) break;
+        m_index++;
+    }
+}
+
+
+HashMap::ConstIterator::operator bool() const { return m_index < m_map.m_cap; }
+HashMap::ConstIterator HashMap::iter() const { return *this; }
 
 #endif // HASHMAP_HPP_
