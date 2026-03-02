@@ -13,26 +13,41 @@ struct ProductEntry {
 };
 
 struct TaskEntry {
-    String agentName;
-    String product;
-    int count;
+    String productName;
+    size_t count;
+};
+
+struct AgentEntry {
+    String name;
+    HashMap products; // Product -- Count
+
+    AgentEntry();
 
     void moved();
     void destroy();
 };
 
-void TaskEntry::moved()
+AgentEntry::AgentEntry()
+    : name()
+    , products
+      (sizeof(TaskEntry),
+       (HashMap::EqMethod)&String::eq,
+       (HashMap::HashMethod)&String::hash,
+       (HashMap::MovedMethod)&String::moved,
+       (HashMap::DestroyMethod)&String::destroy)
+{}
+
+void AgentEntry::moved()
 {
-    agentName.moved();
-    product.moved();
+    name.moved();
+    products.moved();
 }
 
-void TaskEntry::destroy()
+void AgentEntry::destroy()
 {
-    agentName.destroy();
-    product.destroy();
+    name.destroy();
+    products.destroy();
 }
-
 
 struct SignEntry {
     float value;
@@ -54,7 +69,7 @@ hash_t SignEntry::hash() const
 
 struct File {
     HashMap products; // Name -> Cost
-    HashMap tasks;   // Agent -> Product, Count
+    HashMap agents;   // Agent -> Product, Count
     HashMap finance; // Sign  -> Count
 
     File();
@@ -72,12 +87,12 @@ File::File()
        (HashMap::HashMethod)&String::hash,
        (HashMap::MovedMethod)&String::moved,
        (HashMap::DestroyMethod)&String::destroy)
-    , tasks
-      (sizeof(TaskEntry),
+    , agents
+      (sizeof(AgentEntry),
        (HashMap::EqMethod)&String::eq,
        (HashMap::HashMethod)&String::hash,
-       (HashMap::MovedMethod)&TaskEntry::moved,
-       (HashMap::DestroyMethod)&TaskEntry::destroy)
+       (HashMap::MovedMethod)&AgentEntry::moved,
+       (HashMap::DestroyMethod)&AgentEntry::destroy)
     , finance
       (sizeof(SignEntry),
        (HashMap::EqMethod)&SignEntry::eq,
@@ -110,19 +125,26 @@ bool File::readProduct(std::istream &in)
 
 bool File::readTask(std::istream &in)
 {
+    AgentEntry newAgent;
+    AgentEntry *agent;
     TaskEntry task;
 
     String token = String::readWordFromStream(in);
     if (token == "section") return false;
-    task.agentName = token;
     if (!token.length()) return false;
+
+    agent = (AgentEntry *)agents.get((HashMap::Item *)&token);
+    if (!agent) {
+        agent = &newAgent;
+        agent->name = token;
+    }
 
     token = String::readWordFromStream(in);
     if (token == "section" || !token.length()) {
         std::cerr << "ОШИБКА: неполная запись задания, игнорируется" << std::endl;
         return false;
     }
-    task.product = token;
+    task.productName = token;
     in >> task.count;
     if (!in) {
         std::cerr << "ОШИБКА: неудалось прочитать количество продукта, ингорируется"
@@ -132,11 +154,15 @@ bool File::readTask(std::istream &in)
         return true;
     }
 
-    if (!tasks.insert((HashMap::Item *)&task)) {
-        std::cerr << "ОШИБКА: задача агенту " << task.agentName
-                  << " уже выдана, ингорируется" << std::endl;
+    if (!agent->products.insert((HashMap::Item *)&task)) {
+        std::cerr << "ОШИБКА: задача агенту " << agent->name
+                  << " уже содержит продукт " << task.productName
+                  << ", ингорируется" << std::endl;
         return true;
     }
+
+    if (agent == &newAgent) agents.insert((HashMap::Item *)agent);
+
     return true;
 }
 
@@ -223,21 +249,24 @@ int main()
 
     File input;
     if (!input.readFile(f)) return 1;
-    for (HashMap::Iterator it = input.tasks.iter(); it; ++it) {
-        TaskEntry *task = (TaskEntry *)*it;
-        ProductEntry *product = (ProductEntry *)input.products.get((HashMap::Item *)&task->product);
-        if (!product) {
-            std::cerr << "ОШИБКА: Агент " << task->agentName
-                      << " имеет в задании продукт " << task->product
-                      << " о котором нет свдедений,"
-                      << " игнорируется" << std::endl;
-            continue;
+    for (HashMap::Iterator it = input.agents.iter(); it; ++it) {
+        AgentEntry *agent = (AgentEntry *)*it;
+        std::cout << "Agent: " << agent->name << std::endl;
+        for (HashMap::Iterator it = agent->products.iter(); it; ++it) {
+            TaskEntry *task = (TaskEntry *)*it;
+            ProductEntry *product = (ProductEntry *)input
+                .products.get((HashMap::Item *)&task->productName);
+            if (!product) {
+                std::cerr << "ОШИБКА: агент " << agent->name
+                          << " имеет задание с продуктом "
+                          << task->productName
+                          << " о котором нет сведений, игнорируется"
+                          << std::endl;
+                continue;
+            }
+            std::cout << "  Product: " << task->productName << " Count: "
+                      << task->count << std::endl;
         }
-
-        size_t totalCost = task->count * product->cost;
-
-
-        std::cout << task->agentName << ": " << totalCost << std::endl;
     }
 
     return 0;
