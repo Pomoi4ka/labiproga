@@ -90,6 +90,7 @@ bool File::readProduct(std::istream &in)
 
     String token = String::readWordFromStream(in);
     if (token == "section") return false;
+    if (in.eof()) return false;
     product.name = token;
     in >> product.cost;
     if (!in) {
@@ -114,13 +115,14 @@ bool File::readTask(std::istream &in)
     String token = String::readWordFromStream(in);
     if (token == "section") return false;
     task.agentName = token;
+    if (!token.length()) return false;
 
     token = String::readWordFromStream(in);
-    if (token == "section") {
+    if (token == "section" || !token.length()) {
         std::cerr << "ОШИБКА: неполная запись задания, игнорируется" << std::endl;
         return false;
     }
-    task.agentName = token;
+    task.product = token;
     in >> task.count;
     if (!in) {
         std::cerr << "ОШИБКА: неудалось прочитать количество продукта, ингорируется"
@@ -146,7 +148,11 @@ bool File::readSign(std::istream &in)
     if (!in) {
         if (in.eof()) return false;
         in.clear();
-        return true;
+        String token = String::readWordFromStream(in);
+        if (token != "section") {
+            std::cerr << "ОШИБКА: неизвестное выражение в секции номиналов: " << token;
+        }
+        return false;
     }
 
     in >> sign.count;
@@ -154,7 +160,11 @@ bool File::readSign(std::istream &in)
         std::cerr << "ОШИБКА: неполная запись количества номинала, игнорируется" << std::endl;
         if (in.eof()) return false;
         in.clear();
-        return true;
+        String token = String::readWordFromStream(in);
+        if (token != "section") {
+            std::cerr << "ОШИБКА: неизвестное выражение в секции номиналов: " << token;
+        }
+        return false;
     }
 
     if (!finance.insert((HashMap::Item *)&sign)) {
@@ -213,7 +223,22 @@ int main()
 
     File input;
     if (!input.readFile(f)) return 1;
+    for (HashMap::Iterator it = input.tasks.iter(); it; ++it) {
+        TaskEntry *task = (TaskEntry *)*it;
+        ProductEntry *product = (ProductEntry *)input.products.get((HashMap::Item *)&task->product);
+        if (!product) {
+            std::cerr << "ОШИБКА: Агент " << task->agentName
+                      << " имеет в задании продукт " << task->product
+                      << " о котором нет свдедений,"
+                      << " игнорируется" << std::endl;
+            continue;
+        }
 
+        size_t totalCost = task->count * product->cost;
+
+
+        std::cout << task->agentName << ": " << totalCost << std::endl;
+    }
 
     return 0;
 }
