@@ -27,7 +27,7 @@ public:
     };
 
     typedef hash_t (Item:: *HashMethod)() const;
-    typedef bool (Item:: *EqMethod)(Item const &) const;
+    typedef bool (Item:: *EqMethod)(...) const;
     typedef void (Item:: *MovedMethod)() const;
     typedef void (Item:: *DestroyMethod)() const;
 private:
@@ -117,7 +117,7 @@ ssize_t HashMap::findItem(HashMap::Item *item) const
     size_t i, limit = HASHMAP_DENSITY * m_cap;
     for (i = 0; i < limit; ++i, hash = (hash + 1) % m_cap) {
         if (!bitmapAt(hash)) continue;
-        if (!(item->*m_eq)(*itemAt(hash))) continue;
+        if (!(item->*m_eq)(itemAt(hash))) continue;
         break;
     }
     if (i == limit) return -1;

@@ -88,7 +88,7 @@ void String::add(char x)
 bool String::eq(String const &other) const
 {
     if (m_count != other.m_count) return false;
-    for (size_t i = 0; i < m_count && i < other.m_count; i++)
+    for (size_t i = 0; i < m_count; i++)
         if (m_data[i] != other.m_data[i])
             return false;
     return true;
