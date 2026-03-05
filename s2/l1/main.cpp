@@ -162,7 +162,7 @@ class StringHolder {
 
     HoldingStringKind m_kind;
     char m_storage[STORAGE_SIZE];
-    GenericMethod m_vtable[__method_count];
+    const GenericMethod *m_vtable;
 
 public:
     explicit inline StringHolder()
@@ -186,32 +186,38 @@ public:
 
     inline void setKind(HoldingStringKind kind)
     {
+        static const GenericMethod markedVTable[__method_count] = {
+            (GenericMethod)&MarkedString::getMark,
+            (GenericMethod)&MarkedString::setMark,
+            (GenericMethod)&MarkedString::reset,
+            (GenericMethod)&MarkedString::length,
+            (GenericMethod)(const char *(MarkedString::*)() const)&MarkedString::data,
+            (GenericMethod)(char *(MarkedString::*)())&MarkedString::data,
+            (GenericMethod)&MarkedString::add,
+        };
+
+        static const GenericMethod sizedVTable[__method_count] = {
+            NULL,
+            NULL,
+            (GenericMethod)&SizedString::reset,
+            (GenericMethod)&SizedString::length,
+            (GenericMethod)(const char *(SizedString::*)() const)&SizedString::data,
+            (GenericMethod)(char *(SizedString::*)())&SizedString::data,
+            (GenericMethod)&SizedString::add,
+        };
+
         this->~StringHolder();
         m_kind = kind;
         switch (kind) {
         case SH_NONE: break;
-        case SH_MARKED_STRING:
+        case SH_MARKED_STRING: {
             new (m_storage) MarkedString;
-            m_vtable[M_add]      = reinterpret_cast<GenericMethod>(&MarkedString::add);
-            m_vtable[M_getMark]  = reinterpret_cast<GenericMethod>(&MarkedString::getMark);
-            m_vtable[M_setMark]  = reinterpret_cast<GenericMethod>(&MarkedString::setMark);
-            m_vtable[M_reset]    = reinterpret_cast<GenericMethod>(&MarkedString::reset);
-            m_vtable[M_length]   = reinterpret_cast<GenericMethod>(&MarkedString::length);
-            m_vtable[M_Cdata]    = reinterpret_cast<GenericMethod>((const char *(MarkedString::*)() const)&MarkedString::data);
-            m_vtable[M_data]     = reinterpret_cast<GenericMethod>((char *(MarkedString::*)())&MarkedString::data);
-            m_vtable[M_add]      = reinterpret_cast<GenericMethod>(&MarkedString::add);
-            break;
-        case SH_SIZED_STRING:
+            m_vtable = markedVTable;
+        } break;
+        case SH_SIZED_STRING: {
             new (m_storage) SizedString;
-            m_vtable[M_add]      = reinterpret_cast<GenericMethod>(&SizedString::add);
-            m_vtable[M_getMark]  = NULL;
-            m_vtable[M_setMark]  = NULL;
-            m_vtable[M_reset]    = reinterpret_cast<GenericMethod>(&SizedString::reset);
-            m_vtable[M_length]   = reinterpret_cast<GenericMethod>(&SizedString::length);
-            m_vtable[M_Cdata]    = reinterpret_cast<GenericMethod>((const char *(SizedString::*)() const)&SizedString::data);
-            m_vtable[M_data]     = reinterpret_cast<GenericMethod>((char *(SizedString::*)())&SizedString::data);
-            m_vtable[M_add]      = reinterpret_cast<GenericMethod>(&SizedString::add);
-            break;
+            m_vtable = sizedVTable;
+        } break;
         }
     }
 
