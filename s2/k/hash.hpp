@@ -9,11 +9,11 @@ static inline hash_t dummyHash(const void *data, size_t len)
     const char *d = reinterpret_cast<const char *>(data);
 
     for (size_t i = 0; i < len; ++i) {
-        h ^= h << 12 | h >> 9;
+        h = h << 12 | h >> 20;
         h ^= d[i];
         h ^= 0xefc431fe;
     }
-    return h;
+    return h * 1931;
 }
 
 #endif // HASH_HPP_
