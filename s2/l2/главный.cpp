@@ -7,7 +7,8 @@
 int main()
 {
     Блок блок;
-    std::ifstream ввод("input.txt");
+    std::ifstream ввод;
+    ввод.open("input.txt");
     if (!ввод.is_open()) {
         std::cerr << "ОШИБКА: неудалось открыть файл" << std::endl;
         return 1;
@@ -25,9 +26,8 @@ int main()
         return 1;
     }
 
-    while (ввод && ввод.peek() != '\n')
-        ввод.get();
-    ввод.get();
+    while (ввод && ввод.get() != '\n')
+        ;;
 
     блок.поставитьОступАбзаца(отступ);
     блок.поставитьШиринуСтроки(ширина);
