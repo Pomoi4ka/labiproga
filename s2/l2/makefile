@@ -1,4 +1,4 @@
-CXXFLAGS = -Wall -Wextra -pedantic -std=c++98 -g
+CXXFLAGS = -Wall -Wextra -pedantic -fno-exceptions -std=c++98 -g
 
 ifeq ($(CXX), clang++)
 	CXXFLAGS += -fsanitize=memory,undefined
