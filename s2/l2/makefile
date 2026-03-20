@@ -1,5 +1,9 @@
 CXXFLAGS = -Wall -Wextra -pedantic -std=c++98 -g
 
+ifeq ($(CXX), clang++)
+	CXXFLAGS += -fsanitize=memory,undefined
+endif
+
 ИСХОДНИКИ = строка.cpp \
 	главный.cpp \
 	блок.cpp \

@@ -20,11 +20,6 @@ class Строка {
     inline void operator=(Строка);
     inline Строка(Строка const&);
 public:
-    enum Бритва {
-        БР_ПЕРЕНОСЫ,
-        БР_ПРОБЕЛЫ,
-        БР_ПЕРЕНОСЫ_И_ПРОБЕЛЫ
-    };
 
     explicit Строка();
     ~Строка();
@@ -39,7 +34,7 @@ public:
 
     char operator[](size_t) const;
 
-    void побрить(Бритва = БР_ПЕРЕНОСЫ_И_ПРОБЕЛЫ);
+    void побрить();
     void вставить(size_t куда, const char *кого, size_t сколько);
     void выровнятьПоШирине(size_t);
 };
