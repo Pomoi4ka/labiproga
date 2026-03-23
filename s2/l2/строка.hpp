@@ -24,11 +24,10 @@ public:
     explicit Строка();
     ~Строка();
     void добавить(char);
-    void добавить(const char *, size_t);
+    void добавить(const Строка&);
     void сбросить();
     size_t длина() const;
     const char *данные() const;
-    char *данные();
     void обрезать(size_t); // Справа
     void срезать(size_t); // Слева
 
