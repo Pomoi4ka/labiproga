@@ -106,7 +106,6 @@ void Блок::обработать()
     }
 }
 
-size_t Блок::количество() const { return ч_количество; }
 Строка const *Блок::строки() const { return ч_строки; }
 
 std::ostream &operator<<(std::ostream &поток, Блок const &блок)

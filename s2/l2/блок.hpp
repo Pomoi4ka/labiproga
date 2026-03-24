@@ -23,7 +23,6 @@ public:
     void обработать();
     void сброс();
 
-    size_t количество() const;
     Строка const *строки() const;
 };
 
