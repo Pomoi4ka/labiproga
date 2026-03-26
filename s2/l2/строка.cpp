@@ -3,9 +3,7 @@
 #include "символы.hpp"
 
 #include <cassert>
-#include <new>
 #include <sys/types.h>
-#include <cmath>
 
 const size_t Строка::НАЧАЛЬНАЯ_ЁМКОСТЬ = К_СТРОКА_НАЧАЛЬНАЯ_ЁМКОСТЬ;
 const size_t Строка::РАЗМЕР_ЁМКОСТНОГО_ПОЛЯ = sizeof(size_t);
