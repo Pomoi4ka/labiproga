@@ -64,10 +64,10 @@ bool Form::hasNext() const
 void Form::remove()
 {
     if (m_curr) {
-        Node *curr = m_curr;
-        m_curr = m_curr->next;
-        delete curr;
-        if (m_prev) m_prev->next = m_curr;
+        Node *next = m_curr->next;
+        delete m_curr;
+        if (m_prev) m_prev->next = next;
+        m_curr = m_prev;
         return;
     }
 
