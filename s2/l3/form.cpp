@@ -75,6 +75,7 @@ void Form::remove()
     if (m_prev) {
         delete m_tail;
         m_tail = m_prev;
+        m_tail->next = NULL;
         m_prev = NULL; // By removing last element we wraps around
     } else {
         Node *head = m_head;
