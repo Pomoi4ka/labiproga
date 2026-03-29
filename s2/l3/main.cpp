@@ -17,16 +17,24 @@ int main()
 
     readLines(form, input);
 
-    std::cout << "До:" << std::endl;
-    vomitForm(form, std::cout);
+    struct FormVomit {
+        const char *msg;
+        std::ostream &strm;
+        bool doPostProcessing;
+    };
+    FormVomit const static formVomits[] = {
+        {"До:", std::cout, true},
+        {"После:", std::cout, false}
+    };
 
-    for (String *s = (form.reset(), form.next()); s;) ??<
-        if (s->hasWords()) s = form.next();
-        else s = form.remove();
+    for (size_t i = 0; i < sizeof formVomits / sizeof formVomits[0]; ++i) ??<
+        FormVomit const &vomit = formVomits??(i??);
+        vomit.strm << vomit.msg << std::endl;
+        vomitForm(form, vomit.strm);
+        if (!vomit.doPostProcessing) continue;
+        for (String *s = (form.reset(), form.next()); s;)
+            s = (form.*(s->hasWords() ? &Form::next : &Form::remove))();
     ??>
-
-    std::cout << "После:" << std::endl;
-    vomitForm(form, std::cout);
 
     return 0;
 ??>
