@@ -27,7 +27,7 @@ int main()
         ??<"После:", std::cout, false??>
     ??>;
 
-    for (size_t i = 0; i < sizeof formVomits / sizeof formVomits[0]; ++i) ??<
+    for (size_t i = 0; i < sizeof formVomits / sizeof formVomits??(0??); ++i) ??<
         FormVomit const &vomit = formVomits??(i??);
         vomit.strm << vomit.msg << std::endl;
         vomitForm(form, vomit.strm);
