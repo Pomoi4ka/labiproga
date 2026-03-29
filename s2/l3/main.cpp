@@ -17,15 +17,15 @@ int main()
 
     slurpFile(form, input);
 
-    struct FormVomit {
+    struct FormVomit ??<
         const char *msg;
         std::ostream &strm;
         bool doPostProcessing;
-    };
-    FormVomit const static formVomits[] = {
-        {"До:", std::cout, true},
-        {"После:", std::cout, false}
-    };
+    ??>;
+    FormVomit const static formVomits??(??) = ??<
+        ??<"До:", std::cout, true??>,
+        ??<"После:", std::cout, false??>
+    ??>;
 
     for (size_t i = 0; i < sizeof formVomits / sizeof formVomits[0]; ++i) ??<
         FormVomit const &vomit = formVomits??(i??);
