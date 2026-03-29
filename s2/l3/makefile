@@ -3,7 +3,8 @@ CXXFLAGS = -Wall -Wno-trigraphs -Wextra -pedantic -std=c++98 -g -fno-exceptions 
 SOURCES = \
 	string.cpp \
 	main.cpp \
-	form.cpp
+	form.cpp \
+	formFileIORelationship.cpp
 
 OBJS = $(subst .cpp,.o,$(SOURCES))
 
