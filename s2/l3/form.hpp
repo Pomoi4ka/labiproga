@@ -1,7 +1,7 @@
-#ifndef FORM_HPP_
-#define FORM_HPP_
+??=ifndef FORM_HPP_
+??=define FORM_HPP_
 
-class Form {
+class Form ??<
     struct Node;
     Node *m_prev;
     Node *m_curr;
@@ -15,6 +15,6 @@ public:
     bool hasNext() const;
     class String *next();
     class String *remove();
-};
+??>;
 
-#endif // FORM_HPP_
+??=endif // FORM_HPP_

@@ -1,76 +1,76 @@
-#include "form.hpp"
-#include "string.hpp"
+??=include "form.hpp"
+??=include "string.hpp"
 
-#include <cassert>
+??=include <cassert>
 
-struct Form::Node {
+struct Form::Node ??<
     String content;
     Node *next;
 
     inline Node();
-};
+??>;
 
 Form::Node::Node()
     : content()
     , next()
-{}
+??<??>
 
 Form::Form()
     : m_prev()
     , m_curr()
     , m_head()
     , m_tail()
-{}
+??<??>
 
 Form::~Form()
-{
+??<
     Node *node = m_head;
-    while (node) {
+    while (node) ??<
         Node *next = node->next;
         delete node;
         node = next;
-    }
-}
+    ??>
+??>
 
 void Form::append()
-{
+??<
     Node *node = new Node;
     if (m_tail) m_tail->next = node;
     m_tail = node;
     if (!m_head) m_head = m_tail;
-}
+??>
 
 String *Form::next()
-{
+??<
     m_prev = m_curr;
     if (!m_curr) m_curr = m_head;
     else m_curr = m_curr->next;
     return m_curr ? &m_curr->content : NULL;
-}
+??>
 
 void Form::reset()
-{
+??<
     m_curr = NULL;
     m_prev = NULL;
-}
+??>
 
 bool Form::hasNext() const
-{
+??<
     if (m_curr) return !!m_curr->next;
     if (m_head) return !m_prev; // Reset state
     return false;
-}
+??>
 
 String *Form::remove()
-{
+??<
     assert(m_curr && "removing element outside of list");
     Node *next = m_curr->next;
     delete m_curr;
-    if (m_prev) {
+    if (m_prev) ??<
         m_prev->next = next;
         if (m_tail == m_curr)
             m_tail = m_prev;
-    } else m_head = next;
+    ??> else m_head = next;
     m_curr = next;
     return m_curr ? &m_curr->content : NULL;
-}
+??>

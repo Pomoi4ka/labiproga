@@ -1,10 +1,10 @@
-#ifndef STRING_HPP_
-#define STRING_HPP_
+??=ifndef STRING_HPP_
+??=define STRING_HPP_
 
-#include <cstddef>
-#include <ostream>
+??=include <cstddef>
+??=include <ostream>
 
-class String {
+class String ??<
     static const size_t INITIAL_CAP;
     static const size_t CAPACITY_FIELD_SIZE;
 
@@ -25,8 +25,8 @@ public:
     const char *data() const;
     char *data();
     bool hasWords() const;
-};
+??>;
 
 std::ostream &operator<<(std::ostream &, String const&);
 
-#endif // STRING_HPP_
+??=endif // STRING_HPP_
