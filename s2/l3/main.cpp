@@ -29,7 +29,7 @@ void vomitForm(Form &form, std::ostream &s)
         s << "-," << std::endl
           << "," << std::setfill('-')
           << std::setw(str->length() + (first ? 1 : 4))
-          << "`" << std::endl << "`->";
+          << "´" << std::endl << "`->";
         first = false;
     }
 }
@@ -46,11 +46,15 @@ int main()
 
     readLines(form, input);
 
+    std::cout << "До:" << std::endl;
+    vomitForm(form, std::cout);
+
     for (String *s = (form.reset(), form.next()); s;) {
         if (s->hasWords()) s = form.next();
         else s = form.remove();
     }
 
+    std::cout << "После:" << std::endl;
     vomitForm(form, std::cout);
 
     return 0;
