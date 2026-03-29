@@ -18,18 +18,17 @@ void readLines(Form &form, std::ifstream &f)
 
 void vomitForm(Form &form, std::ostream &s)
 {
-    form.reset();
     bool first = true;
 
-    while (form.hasNext()) {
-        String &str = *form.next();
-        s << str;
+    for (String *str = (form.reset(), form.next());; str = form.next()) {
+        s << *str;
         if (!form.hasNext()) {
             s << std::endl;
             break;
         }
-        s << "-," << std::endl;
-        s << "," << std::setfill('-') << std::setw(str.length() + (first ? 1 : 4))
+        s << "-," << std::endl
+          << "," << std::setfill('-')
+          << std::setw(str->length() + (first ? 1 : 4))
           << "`" << std::endl << "`->";
         first = false;
     }
@@ -46,8 +45,8 @@ int main()
     }
 
     readLines(form, input);
-    form.reset();
-    for (String *s = form.next(); s;) {
+
+    for (String *s = (form.reset(), form.next()); s;) {
         if (s->hasWords()) s = form.next();
         else s = form.remove();
     }
