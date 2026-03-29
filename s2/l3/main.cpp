@@ -20,7 +20,7 @@ void vomitForm(Form &form, std::ostream &s)
 {
     bool first = true;
 
-    for (String *str = (form.reset(), form.next());; str = form.next()) {
+    for (String *str = (form.reset(), form.next()); str; str = form.next()) {
         s << *str;
         if (!form.hasNext()) {
             s << std::endl;
