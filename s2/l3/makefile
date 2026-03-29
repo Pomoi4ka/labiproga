@@ -1,4 +1,4 @@
-CXXFLAGS = -Wall -Wextra -pedantic -std=c++98 -g -fno-exceptions
+CXXFLAGS = -Wall -Wextra -pedantic -std=c++98 -g -fno-exceptions -fvisibility=hidden
 
 SOURCES = \
 	string.cpp \
