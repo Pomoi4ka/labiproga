@@ -56,30 +56,30 @@ void Form::reset()
 
 bool Form::hasNext() const
 {
-    if (m_curr && m_curr->next) return true;
-    if (m_head && !m_prev) return true; // Reset state
+    if (m_curr) return !!m_curr->next;
+    if (m_head) return !m_prev; // Reset state
     return false;
+}
+
+bool Form::hasCurrent() const
+{
+    return !!m_curr;
+}
+
+String &Form::current() const
+{
+    return m_curr->content;
 }
 
 void Form::remove()
 {
-    if (m_curr) {
-        Node *next = m_curr->next;
-        delete m_curr;
-        if (m_prev) m_prev->next = next;
-        m_curr = m_prev;
-        return;
-    }
-
-    if (!m_head) return;
+    assert(m_curr && "removing element outside of list");
+    Node *next = m_curr->next;
+    delete m_curr;
     if (m_prev) {
-        delete m_tail;
-        m_tail = m_prev;
-        m_tail->next = NULL;
-        m_prev = NULL; // By removing last element we wraps around
-    } else {
-        Node *head = m_head;
-        m_head = m_head->next;
-        delete head;
-    }
+        m_prev->next = next;
+        if (m_tail == m_curr)
+            m_tail = m_prev;
+    } else m_head = next;
+    m_curr = next;
 }

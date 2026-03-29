@@ -20,7 +20,8 @@ void vomitForm(Form &form, std::ostream &s)
 {
     form.reset();
     bool first = true;
-    do {
+
+    while (form.hasNext()) {
         String &str = form.next();
         s << str;
         if (!form.hasNext()) {
@@ -31,7 +32,7 @@ void vomitForm(Form &form, std::ostream &s)
         s << "," << std::setfill('-') << std::setw(str.length() + (first ? 1 : 4))
           << "`" << std::endl << "`->";
         first = false;
-    } while (form.hasNext());
+    }
 }
 
 int main()
@@ -46,9 +47,11 @@ int main()
 
     readLines(form, input);
     form.reset();
-    while (form.hasNext()) {
-        if (!form.next().hasWords()) form.remove();
+    for (form.hasNext() &&& form.next(); form.hasCurrent();) {
+        if (form.current().hasWords()) form.next();
+        else form.remove();
     }
+
     vomitForm(form, std::cout);
 
     return 0;
