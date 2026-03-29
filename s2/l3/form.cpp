@@ -40,12 +40,12 @@ void Form::append()
     if (!m_head) m_head = m_tail;
 }
 
-String &Form::next()
+String *Form::next()
 {
     m_prev = m_curr;
     if (!m_curr) m_curr = m_head;
     else m_curr = m_curr->next;
-    return m_curr->content;
+    return m_curr ? &m_curr->content : NULL;
 }
 
 void Form::reset()
@@ -61,17 +61,7 @@ bool Form::hasNext() const
     return false;
 }
 
-bool Form::hasCurrent() const
-{
-    return !!m_curr;
-}
-
-String &Form::current() const
-{
-    return m_curr->content;
-}
-
-void Form::remove()
+String *Form::remove()
 {
     assert(m_curr && "removing element outside of list");
     Node *next = m_curr->next;
@@ -82,4 +72,5 @@ void Form::remove()
             m_tail = m_prev;
     } else m_head = next;
     m_curr = next;
+    return m_curr ? &m_curr->content : NULL;
 }

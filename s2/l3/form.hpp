@@ -13,10 +13,8 @@ public:
     void append();
     void reset();
     bool hasNext() const;
-    bool hasCurrent() const;
-    class String &next();
-    class String &current() const;
-    void remove();
+    class String *next();
+    class String *remove();
 };
 
 #endif // FORM_HPP_

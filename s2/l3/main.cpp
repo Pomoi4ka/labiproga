@@ -7,11 +7,11 @@
 
 void readLines(Form &form, std::ifstream &f)
 {
-    String *str = &(form.append(), form.next());
+    String *str = (form.append(), form.next());
     for (;;) {
         char s;
         if (!f.get(s)) break;
-        if (s == '\n') str = &(form.append(), form.next());
+        if (s == '\n') str = (form.append(), form.next());
         else           str->add(s);
     }
 }
@@ -22,7 +22,7 @@ void vomitForm(Form &form, std::ostream &s)
     bool first = true;
 
     while (form.hasNext()) {
-        String &str = form.next();
+        String &str = *form.next();
         s << str;
         if (!form.hasNext()) {
             s << std::endl;
@@ -47,9 +47,9 @@ int main()
 
     readLines(form, input);
     form.reset();
-    for (form.hasNext() &&& form.next(); form.hasCurrent();) {
-        if (form.current().hasWords()) form.next();
-        else form.remove();
+    for (String *s = form.next(); s;) {
+        if (s->hasWords()) s = form.next();
+        else s = form.remove();
     }
 
     vomitForm(form, std::cout);
