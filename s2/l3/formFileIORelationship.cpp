@@ -3,7 +3,7 @@
 ??=include <iomanip>
 ??=include "form.hpp"
 
-void readLines(Form &form, std::ifstream &f)
+void slurpFile(Form &form, std::ifstream &f)
 ??<
     String *str = (form.append(), form.next());
     for (;;) ??<

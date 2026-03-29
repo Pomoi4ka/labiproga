@@ -4,7 +4,7 @@
 ??=include <ostream>
 ??=include <fstream>
 
-void readLines(class Form &form, std::ifstream &f);
+void slurpFile(class Form &form, std::ifstream &f);
 void vomitForm(class Form &form, std::ostream &s);
 
 ??=endif // FORM_FILE_IO_RELATIONSHIP_HPP_

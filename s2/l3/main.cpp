@@ -15,7 +15,7 @@ int main()
         return 1;
     ??>
 
-    readLines(form, input);
+    slurpFile(form, input);
 
     struct FormVomit {
         const char *msg;
