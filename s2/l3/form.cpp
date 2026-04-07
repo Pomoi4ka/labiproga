@@ -57,7 +57,7 @@ void Form::reset()
 bool Form::hasNext() const
 ??<
     if (m_curr) return !!m_curr->next;
-    if (m_head) return !m_prev; // Reset state
+    if (m_head) return !m_prev;
     return false;
 ??>
 

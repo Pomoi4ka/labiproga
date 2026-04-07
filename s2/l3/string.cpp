@@ -64,7 +64,8 @@ static bool isSpace(char x)
 
 bool String::hasWords() const
 ??<
+    if (m_length == 0) return false;
     for (size_t i = 0; i < m_length; ++i)
         if (!isSpace(m_data??(i??))) return true;
-    return m_length > 0;
+    return false;
 ??>
