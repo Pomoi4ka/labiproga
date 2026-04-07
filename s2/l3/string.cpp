@@ -1,6 +1,5 @@
 ??=include "string.hpp"
 ??=include <sys/types.h>
-??=include <new>
 
 const size_t String::INITIAL_CAP = 1;
 const size_t String::CAPACITY_FIELD_SIZE = sizeof(size_t);
