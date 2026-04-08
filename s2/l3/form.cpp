@@ -67,8 +67,6 @@ String *Form::remove()
     Node *next = m_curr->next;
     delete m_curr;
     if (m_tail == m_curr) m_tail = m_prev;
-    if (m_prev)           m_prev->next = next;
-    else                  m_head = next;
-    m_curr = next;
-    return m_curr ? &m_curr->content : NULL;
+    return (m_curr = (m_prev ? m_prev->next : m_head) = next)
+           ? &m_curr->content : NULL;
 ??>
