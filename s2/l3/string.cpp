@@ -34,12 +34,12 @@ void String::add(char x)
     if (length() >= capacity()) ??<
         ssize_t oldCap = capacity();
         capacity() *= 2;
-        char *new_data = allocWithCapacity(capacity());
+        char *newData = allocWithCapacity(capacity());
         for (ssize_t i = -CAPACITY_FIELD_SIZE; i < oldCap; ++i) ??<
-            new_data??(i??) = m_data??(i??);
+            newData??(i??) = m_data??(i??);
         ??>
         delete??(??) (m_data - CAPACITY_FIELD_SIZE);
-        m_data = new_data;
+        m_data = newData;
     ??>
 
     m_data??(m_length++??) = x;
