@@ -65,15 +65,10 @@ void ChunkForm::reset()
 char ChunkForm::operator[](size_t i) const
 {
     for (Node *node = m_head; node; node = node->next) {
-        if (node->next) {
-            if (i >= CHUNK_SYM_COUNT) {
-                i -= CHUNK_SYM_COUNT;
-                continue;
-            }
+        if (!node->next || i < CHUNK_SYM_COUNT)
             return node->chunk.data()[i];
-        }
 
-        return node->chunk.data()[i];
+        i -= CHUNK_SYM_COUNT;
     }
     return 0;
 }
