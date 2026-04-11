@@ -10,8 +10,6 @@ public:
     bool add(char);
     size_t len() const;
     const char *data() const;
-
-    int compare(Chunk const &) const;
 };
 
 std::ostream &operator<<(std::ostream &, Chunk const &);

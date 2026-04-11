@@ -24,18 +24,6 @@ Chunk::Chunk()
     : m_data()
 {}
 
-int Chunk::compare(Chunk const &c) const
-{
-    char a, b;
-    for (size_t i = 0; i < CHUNK_SYM_COUNT; ++i) {
-        a = m_data[i];
-        b = c.m_data[i];
-        if (a != b) return a - b;
-        if (!a && !b) return 0;
-    }
-    return 0;
-}
-
 std::ostream &operator<<(std::ostream &s, Chunk const &c)
 {
     s.write(c.data(), c.len());
