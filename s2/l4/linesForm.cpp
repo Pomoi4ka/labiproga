@@ -75,7 +75,7 @@ void LinesForm::bsort()
         Node *a = m_head;
         while (a->next != end) {
             Node *b = a->next;
-            if (b->form.compare(a->form) <= 0) {
+            if (b->form.compare(a->form) > 0) {
                 p = a, a = a->next;
                 continue;
             }
