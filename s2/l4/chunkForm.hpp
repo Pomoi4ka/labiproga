@@ -15,6 +15,7 @@ public:
     void append();
     void reset();
     class Chunk *next();
+    bool hasNext() const;
 
     int compare(ChunkForm const &) const;
 };

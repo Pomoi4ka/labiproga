@@ -1,6 +1,8 @@
 #ifndef CHUNK_HPP_
 #define CHUNK_HPP_
 
+#include <ostream>
+
 class Chunk {
     char m_data[CHUNK_SYM_COUNT];
 public:
@@ -11,5 +13,7 @@ public:
 
     int compare(Chunk const &) const;
 };
+
+std::ostream &operator<<(std::ostream &, Chunk const &);
 
 #endif // CHUNK_HPP_

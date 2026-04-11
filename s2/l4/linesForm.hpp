@@ -14,6 +14,7 @@ public:
     void append();
     void reset();
     class ChunkForm *next();
+    bool hasNext() const;
 
     void bsort();
 };

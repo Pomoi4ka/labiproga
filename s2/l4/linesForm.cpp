@@ -49,6 +49,13 @@ ChunkForm *LinesForm::next()
     return m_curr ? &m_curr->form : NULL;
 }
 
+bool LinesForm::hasNext() const
+{
+    if (m_curr) return !!m_curr->next;
+    if (m_head) return !m_prev;
+    return false;
+}
+
 void LinesForm::reset()
 {
     m_curr = NULL;

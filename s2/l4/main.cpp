@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 #include "consts.hpp"
@@ -27,16 +28,32 @@ void readFile(LinesForm &form, std::istream &strm)
 
 void writeForm(LinesForm &form, std::ostream &strm)
 {
+    bool first = true;
     ChunkForm *line;
     Chunk *chunk;
 
     line = (form.reset(), form.next());
     for (; line; line = form.next()) {
+        size_t len = 0;
+        strm << "(";
         chunk = (line->reset(), line->next());
-        for (; chunk; chunk = line->next())
-            strm.write(chunk->data(), chunk->len());
-        strm << std::endl;
+        for (; chunk; chunk = line->next()) {
+            len += chunk->len() + 2;
+            strm << '"' << *chunk << '"';
+            if (!line->hasNext()) continue;
+            strm << " -> ";
+            len += 4;
+        }
+        strm << ")";
+        len += 2;
+        len += first ? 3 : 6;
+        first = false;
+        if (!form.hasNext()) continue;
+        strm << " -," << std::endl
+             << "," << std::setfill('-') << std::setw(len)
+             << "´" << std::endl << "`-> ";
     }
+    strm << std::endl;
 }
 
 int main()
@@ -52,12 +69,15 @@ int main()
     }
 
     readFile(form, f);
-    writeForm(form, std::cout);
 
-    std::cout << "---------" << std::endl;
+    std::ostream &s = std::cout;
+
+    s << "До:" << std::endl;
+    writeForm(form, s);
+
     form.bsort();
-
-    writeForm(form, std::cout);
+    s << "После:" << std::endl;
+    writeForm(form, s);
 
     return 0;
 }

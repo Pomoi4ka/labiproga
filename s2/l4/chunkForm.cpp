@@ -49,6 +49,13 @@ Chunk *ChunkForm::next()
     return m_curr ? &m_curr->chunk : NULL;
 }
 
+bool ChunkForm::hasNext() const
+{
+    if (m_curr) return !!m_curr->next;
+    if (m_head) return !m_prev;
+    return false;
+}
+
 void ChunkForm::reset()
 {
     m_curr = NULL;

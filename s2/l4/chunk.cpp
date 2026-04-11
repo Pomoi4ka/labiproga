@@ -1,4 +1,5 @@
 #include <cstddef>
+
 #include "consts.hpp"
 #include "chunk.hpp"
 
@@ -33,4 +34,10 @@ int Chunk::compare(Chunk const &c) const
         if (!a && !b) return 0;
     }
     return 0;
+}
+
+std::ostream &operator<<(std::ostream &s, Chunk const &c)
+{
+    s.write(c.data(), c.len());
+    return s;
 }
