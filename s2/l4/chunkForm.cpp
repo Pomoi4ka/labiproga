@@ -62,23 +62,19 @@ void ChunkForm::reset()
     m_prev = NULL;
 }
 
-char ChunkForm::operator[](size_t i) const
-{
-    for (Node *node = m_head; node; node = node->next) {
-        if (!node->next || i < CHUNK_SYM_COUNT)
-            return node->chunk.data()[i];
-
-        i -= CHUNK_SYM_COUNT;
-    }
-    return 0;
-}
-
 int ChunkForm::compare(ChunkForm const &other) const
 {
-    char a;
-    for (size_t i = 0; (a = (*this)[i]); i++) {
-        char d = a - other[i];
-        if (d) return d;
-    }
+    Node *a = m_head;
+    Node *b = other.m_head;
+
+    for (; a && b; a = a->next, b = b->next)
+        for (size_t i = 0; i < CHUNK_SYM_COUNT; ++i) {
+            char x = a->chunk.data()[i];
+            char y = b->chunk.data()[i];
+            if (x - y) return x - y;
+        }
+
+    if (a) return *a->chunk.data();
+    if (b) return -*b->chunk.data();
     return 0;
 }

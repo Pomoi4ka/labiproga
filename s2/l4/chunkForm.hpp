@@ -8,7 +8,6 @@ class ChunkForm {
     Node *m_head;
     Node *m_tail;
 
-    char operator[](size_t i) const;
 public:
     ChunkForm();
     ~ChunkForm();
