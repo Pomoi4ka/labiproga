@@ -76,6 +76,8 @@ void LinesForm::bsort()
       }
      */
 
+    if (!m_head) return;
+
     Node *end = NULL;
     while (end != m_head) {
         Node *p = NULL;

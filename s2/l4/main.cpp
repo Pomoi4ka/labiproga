@@ -9,11 +9,12 @@
 
 void readFile(LinesForm &form, std::istream &strm)
 {
-    ChunkForm *line = (form.append(), form.next());
+    ChunkForm *line = NULL;
     Chunk *chunk = NULL;
     for (;;) {
         char s;
         if (!strm.get(s)) break;
+        if (!line) line = (form.append(), form.next());
         if (s == '\n') {
             line = (form.append(), form.next());
             chunk = NULL;
