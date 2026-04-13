@@ -1,8 +1,4 @@
-CXXFLAGS=-Wall -Wextra -pedantic -std=c++98 -g
-
-ifeq ($(CXX),clang++)
-	CXXFLAGS+=-fsanitize=memory
-endif
+CXXFLAGS=-Wall -Wextra -pedantic -std=c++98 -g -fno-exceptions
 
 SRCS= \
 	main.cpp \
