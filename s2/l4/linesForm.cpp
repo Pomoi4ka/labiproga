@@ -80,6 +80,7 @@ void LinesForm::bsort()
 
     Node *end = NULL;
     while (end != m_head) {
+        bool swapped = false;
         Node *p = NULL;
         Node *a = m_head;
         while (a->next != end) {
@@ -93,10 +94,12 @@ void LinesForm::bsort()
             a->next = b->next;
             b->next = a;
             p = b;
+            swapped = true;
         }
         end = a;
         if (m_tail->next)
             m_tail = m_tail->next;
+        if (!swapped) break;
     }
     assert(!m_tail->next);
 }
