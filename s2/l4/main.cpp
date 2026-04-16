@@ -20,9 +20,8 @@ void readFile(LinesForm &form, std::istream &strm)
             chunk = NULL;
         } else {
             if (!chunk) chunk = (line->append(), line->next());
-            if (chunk->len() == CHUNK_SYM_COUNT)
-                chunk = (line->append(), line->next());
-            chunk->add(s);
+            if (!chunk->add(s))
+                (chunk = (line->append(), line->next()))->add(s);
         }
     }
 }
