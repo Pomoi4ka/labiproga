@@ -71,7 +71,7 @@ bool FileReader::nextToken()
         do {
             m_token.append(c);
             m_number = m_number*10 + c - '0';
-            if (!(c = m_file.peek())) break;
+            c = m_file.peek();
         } while (isDigit(c) && get(c));
         return true;
     }
@@ -79,7 +79,7 @@ bool FileReader::nextToken()
         m_tokenKind = TK_ID;
         do {
             m_token.append(c);
-            if (!(c = m_file.peek())) break;
+            c = m_file.peek();
         } while ((isAlpha(c)
                   || isDigit(c)
                   || c == '_')
