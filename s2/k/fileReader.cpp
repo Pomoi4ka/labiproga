@@ -9,6 +9,7 @@
 FileReader::FileReader(const char *path)
     : m_file()
     , m_token()
+    , m_tkCol(), m_tkRow()
     , m_col(), m_row()
     , m_path(path)
     , m_errorKind(ERR_NONE)
