@@ -136,10 +136,10 @@ void FileReader::reportError() const
     std::cerr << m_path << ":" << m_tkRow + 1 << ":" << m_tkCol
               << ": error: ";
     switch (m_errorKind) {
-    case ERR_TASK_DUPLICATION:
+    case ERR_DUPLICATION_TASK:
         std::cerr << "task duplication: `" << m_token << "`" << std::endl;
         break;
-    case ERR_PRODUCT_DUPLICATION:
+    case ERR_DUPLICATION_PRODUCT:
         std::cerr << "product duplication: `" << m_token << "`" << std::endl;
         break;
     case ERR_UNKNOWN_SECTION:
@@ -168,7 +168,7 @@ bool FileReader::readProductsSection(File &file)
         if (!checkTokenKind(TK_ID)) return false;
         product = file.findOrInsertProduct(m_token);
         if (product->price != PRODUCT_PRICE_UNKNOWN) {
-            m_errorKind = ERR_PRODUCT_DUPLICATION;
+            m_errorKind = ERR_DUPLICATION_PRODUCT;
             return false;
         }
         if (!expectToken(TK_NUMBER)) return false;
@@ -192,7 +192,7 @@ bool FileReader::readTasksSection(File &file)
             if (!checkTokenKind(TK_ID)) return false;
             task.product = file.findOrInsertProduct(m_token);
             if (agent->findTask(task.product)) {
-                m_errorKind = ERR_TASK_DUPLICATION;
+                m_errorKind = ERR_DUPLICATION_TASK;
                 return false;
             }
             if (!expectToken(TK_NUMBER)) return false;

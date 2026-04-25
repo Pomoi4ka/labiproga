@@ -16,8 +16,8 @@ class FileReader {
         ERR_UNEXPECTED_TOKEN,
         ERR_UNEXPECTED_EOF,
         ERR_UNKNOWN_SECTION,
-        ERR_PRODUCT_DUPLICATION,
-        ERR_TASK_DUPLICATION
+        ERR_DUPLICATION_PRODUCT,
+        ERR_DUPLICATION_TASK
     };
 
     std::ifstream m_file;
