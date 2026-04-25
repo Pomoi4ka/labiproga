@@ -17,11 +17,6 @@ FileReader::FileReader(const char *path)
     m_file.open(path);
 }
 
-bool FileReader::isError() const
-{
-    return m_errorKind != ERR_NONE;
-}
-
 bool FileReader::get(char &x)
 {
     if (!m_file.get(x)) return false;

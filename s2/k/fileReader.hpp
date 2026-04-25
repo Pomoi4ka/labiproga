@@ -47,7 +47,6 @@ class FileReader {
 public:
     FileReader(const char *);
 
-    bool isError() const;
     bool readFile(struct File &);
     void reportError() const;
 };
