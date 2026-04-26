@@ -17,7 +17,8 @@ class FileReader {
         ERR_UNEXPECTED_EOF,
         ERR_UNKNOWN_SECTION,
         ERR_DUPLICATION_PRODUCT,
-        ERR_DUPLICATION_TASK
+        ERR_DUPLICATION_TASK,
+        ERR_FILE_UNKNOWN_PRODUCT
     };
 
     std::ifstream m_file;
@@ -43,6 +44,7 @@ class FileReader {
     bool expectToken(TokenKind);
     bool checkTokenKind(TokenKind);
     bool nextToken();
+    bool validate(struct File &);
     static const char *tokenKind(TokenKind);
 public:
     FileReader(const char *);

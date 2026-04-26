@@ -11,6 +11,7 @@ struct Product {
 struct Task {
     Product *product;
     size_t count;
+    size_t row, col;
 };
 
 struct Agent {

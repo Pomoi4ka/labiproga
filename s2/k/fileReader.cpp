@@ -122,6 +122,25 @@ bool FileReader::readFile(File &dest)
         if (m_errorKind == ERR_UNEXPECTED_EOF) break;
         if (!checkTokenKind(TK_SECTION)) return false;
     }
+    if (!validate(dest)) return false;
+    return true;
+}
+
+bool FileReader::validate(File &file)
+{
+    List<Agent>::ConstNode agent = file.agents.head();
+    for (; *agent; agent = agent.next()) {
+        List<Task>::ConstNode task = agent->tasks.head();
+        for (; *task; task = task.next()) {
+            if (task->product->price != PRODUCT_PRICE_UNKNOWN)
+                continue;
+            m_token = task->product->name;
+            m_tkRow = task->row;
+            m_tkCol = task->col;
+            m_errorKind = ERR_FILE_UNKNOWN_PRODUCT;
+            return false;
+        }
+    }
     return true;
 }
 
@@ -131,6 +150,9 @@ void FileReader::reportError() const
     std::cerr << m_path << ":" << m_tkRow + 1 << ":" << m_tkCol
               << ": error: ";
     switch (m_errorKind) {
+    case ERR_FILE_UNKNOWN_PRODUCT:
+        std::cerr << "unknown product: `" << m_token << "`" << std::endl;
+        break;
     case ERR_DUPLICATION_TASK:
         std::cerr << "task duplication: `" << m_token << "`" << std::endl;
         break;
@@ -181,9 +203,12 @@ bool FileReader::readTasksSection(File &file)
         agent = file.findOrInsertAgent(m_token);
 
         if (!expectToken(TK_OBRACKET)) return false;
+
         while (nextToken()) {
-            if (m_tokenKind == TK_CBRACKET) break;
             Task task;
+            task.row = m_tkRow;
+            task.col = m_tkCol;
+            if (m_tokenKind == TK_CBRACKET) break;
             if (!checkTokenKind(TK_ID)) return false;
             task.product = file.findOrInsertProduct(m_token);
             if (agent->findTask(task.product)) {
