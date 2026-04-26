@@ -31,7 +31,7 @@ bool StringBlock::have(const char *c) const
 {
     const char *b = block;
     const char *e = block + STRING_BLOCK_SIZE;
-    for (; *c && b != e;)
+    while (*c && b != e)
         if (*b++ != *c++) return false;
     return true;
 }
