@@ -145,12 +145,14 @@ bool List<T>::hasNext() const
 
 template <typename T>
 List<T>::List(List<T> const &other)
-    : m_curr()
-    , m_prev()
 {
     Node *node = new Node(*other.m_head);
     m_head = node;
+    if (other.m_curr == other.m_head) m_curr = node;
+    if (other.m_prev == other.m_head) m_prev = node;
     while (node->next) {
+        if (other.m_curr == node->next) m_curr = node->next;
+        if (other.m_prev == node->next) m_prev = node->next;
         node = node->next = new Node(*node->next);
     }
     m_tail = node;
