@@ -47,3 +47,13 @@ Agent *File::findOrInsertAgent(String const &name)
     a->name = name;
     return a;
 }
+
+size_t Agent::sum() const
+{
+    size_t result = 0;
+    List<Task>::ConstNode task = tasks.head();
+    for (; *task; task = task.next()) {
+        result += task->count * task->product->price;
+    }
+    return result;
+}

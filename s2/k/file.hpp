@@ -19,6 +19,7 @@ struct Agent {
     List<Task> tasks;
 
     Task *findTask(Product *);
+    size_t sum() const;
 };
 
 struct Denom {
