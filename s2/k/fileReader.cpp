@@ -51,39 +51,39 @@ bool FileReader::nextToken()
 {
     char c;
     m_token.reset();
-    for (;;) {
-        if (!get(c)) {
-            m_errorKind = ERR_UNEXPECTED_EOF;
-            return false;
-        }
-        m_tkCol = m_col;
-        m_tkRow = m_row;
-        switch (c) {
-        case '[': m_tokenKind = TK_OBRACKET; return true;
-        case ']': m_tokenKind = TK_CBRACKET; return true;
-        }
-        if (isSpace(c)) continue;
-        break;
+
+    do {
+        if (get(c)) continue;
+        m_errorKind = ERR_UNEXPECTED_EOF;
+        return false;
+    } while (isSpace(c));
+
+    m_tkCol = m_col;
+    m_tkRow = m_row;
+    m_token.append(c);
+
+    switch (c) {
+    case '[': m_tokenKind = TK_OBRACKET; return true;
+    case ']': m_tokenKind = TK_CBRACKET; return true;
     }
     if (isDigit(c)) {
         m_tokenKind = TK_NUMBER;
-        m_number = 0;
-        do {
+        m_number = c - '0';
+        while (isDigit(m_file.peek()) && get(c)) {
             m_token.append(c);
             m_number = m_number*10 + c - '0';
-            c = m_file.peek();
-        } while (isDigit(c) && get(c));
+        }
         return true;
     }
     if (isAlpha(c) || c == '_') {
         m_tokenKind = TK_ID;
-        do {
-            m_token.append(c);
+        for (;;) {
             c = m_file.peek();
-        } while ((isAlpha(c)
-                  || isDigit(c)
-                  || c == '_')
-                 && get(c));
+            if (!(isAlpha(c) || isDigit(c) || c == '_'))
+                break;
+            if (!get(c)) break;
+            m_token.append(c);
+        }
         if (m_token == SECTION_KEYWORD)
             m_tokenKind = TK_SECTION;
         return true;
