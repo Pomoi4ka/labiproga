@@ -1,4 +1,4 @@
-CXXFLAGS = -Wall -Wextra -pedantic -std=c++98 -ggdb -fno-exceptions
+CXXFLAGS = -Wall -Wextra -pedantic -std=c++98 -ggdb -fno-exceptions -march=native
 SOURCES = \
 	main.cpp \
 	string.cpp \
@@ -6,7 +6,8 @@ SOURCES = \
 	consts.cpp \
 	fileReader.cpp \
 	chars.cpp \
-	file.cpp
+	file.cpp \
+	solution.cpp
 
 ifeq ($(CXX),clang++)
 	CXXFLAGS += -fsanitize=memory,undefined
