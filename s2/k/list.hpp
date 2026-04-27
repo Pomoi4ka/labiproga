@@ -24,6 +24,8 @@ public:
     void reset();
     ConstNode head() const;
     T *tail();
+    T *pushLeft();
+    T popLeft();
 
     List &operator=(List const&);
 };
@@ -145,7 +147,12 @@ bool List<T>::hasNext() const
 
 template <typename T>
 List<T>::List(List<T> const &other)
+    : m_curr()
+    , m_prev()
+    , m_head()
+    , m_tail()
 {
+    if (!other.m_head) return;
     Node *node = new Node(*other.m_head);
     m_head = node;
     if (other.m_curr == other.m_head) m_curr = node;
@@ -163,6 +170,30 @@ List<T> &List<T>::operator=(List<T> const &other)
 {
     this->~List();
     return *new (this) List(other);
+}
+
+template <typename T>
+T List<T>::popLeft()
+{
+    Node *head = m_head;
+    if (m_curr == head) next();
+    if (m_prev == head) m_prev = NULL;
+    if (m_head == m_tail)
+        m_tail = m_head->next;
+    m_head = m_head->next;
+    T result = head->item;
+    delete head;
+    return result;
+}
+
+template <typename T>
+T *List<T>::pushLeft()
+{
+    Node *node = new Node;
+    node->next = m_head;
+    if (!m_tail) m_tail = node;
+    m_head = node;
+    return &node->item;
 }
 
 #endif // LIST_HPP_
