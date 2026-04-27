@@ -27,7 +27,8 @@ int main()
          *payout; payout = payout.next()) {
         Agent *agent = file.agents.next();
         assert(agent);
-        std::cout << agent->name << ":" << std::endl;
+        std::cout << agent->name << " (sum " << agent->sum()
+                  << ")" << ":" << std::endl;
         for (Solution::Payout::ConstNode denom = payout->head();
              *denom; denom = denom.next())
             std::cout << "    " << denom->value << ": "

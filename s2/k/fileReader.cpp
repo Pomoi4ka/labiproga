@@ -94,25 +94,25 @@ bool FileReader::nextToken()
 
 bool FileReader::expectToken(TokenKind kind)
 {
-    if (!nextToken()) return false;
-    if (m_errorKind == ERR_UNEXPECTED_EOF) return false;
-    return checkTokenKind(kind);
+    if (nextToken()) return checkTokenKind(kind);
+    m_expectedKind = kind;
+    return false;
 }
 
 bool FileReader::checkTokenKind(TokenKind kind)
 {
+    m_expectedKind = kind;
     if (m_errorKind == ERR_UNEXPECTED_EOF) return false;
     if (kind == m_tokenKind) return true;
-    m_expectedKind = kind;
     m_errorKind = ERR_UNEXPECTED_TOKEN;
     return false;
 }
 
 bool FileReader::readFile(File &dest)
 {
-    if (!nextToken()) return m_errorKind != ERR_UNEXPECTED_EOF;
-    if (!checkTokenKind(TK_SECTION)) return false;
-    while (nextToken()) {
+    if (!expectToken(TK_SECTION)) return false;
+    for (;;) {
+        if (!expectToken(TK_ID)) return false;
         SectionReader reader = getSectionReader(m_token);
         if (!reader) {
             m_errorKind = ERR_UNKNOWN_SECTION;
@@ -163,7 +163,8 @@ void FileReader::reportError() const
         std::cerr << "unknown section: `" << m_token << "`" << std::endl;
         break;
     case ERR_UNEXPECTED_EOF:
-        std::cerr << "unexpected end of file" << std::endl;
+        std::cerr << "unexpected end of file, expected token of kind "
+                  << tokenKind(m_expectedKind) << std::endl;
         break;
     case ERR_UNEXPECTED_TOKEN:
         std::cerr << "unexpected token `" << m_token << "` of kind "
@@ -204,7 +205,8 @@ bool FileReader::readTasksSection(File &file)
 
         if (!expectToken(TK_OBRACKET)) return false;
 
-        while (nextToken()) {
+        for (;;) {
+            nextToken();
             Task task;
             task.row = m_tkRow;
             task.col = m_tkCol;
