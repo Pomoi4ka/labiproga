@@ -55,7 +55,7 @@ size_t Solution::count(Payout const &payout)
     return count;
 }
 
-size_t Solution::solve(Stock stock, AgentNode agents, List<Payout> &result)
+size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
 {
     if (!*agents) return 0;
     size_t amount = **agents;
@@ -98,5 +98,5 @@ Solution::Solution(File const &file)
 
     List<Payout> result;
     if (solve(stock, agents.head(), result) != ~0UL)
-        solution = result;
+        solution.transfer_from(result);
 }

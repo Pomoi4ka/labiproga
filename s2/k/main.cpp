@@ -16,7 +16,7 @@ int main()
         return 1;
     }
 
-    Solution solution = file;
+    Solution solution(file);
     if (!solution.solution.hasNext()) {
         std::cerr << "ERROR: imposible to distribute" << std::endl;
         return 1;
