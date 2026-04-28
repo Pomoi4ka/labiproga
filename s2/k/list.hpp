@@ -26,6 +26,7 @@ public:
     T *tail();
     T *pushLeft();
     T popLeft();
+    void transfer_from(List &other);
 
     List &operator=(List const&);
 };
@@ -194,6 +195,21 @@ T *List<T>::pushLeft()
     if (!m_tail) m_tail = node;
     m_head = node;
     return &node->item;
+}
+
+template <typename T>
+void List<T>::transfer_from(List<T> &other)
+{
+    this->~List();
+    m_prev = other.m_prev;
+    m_curr = other.m_curr;
+    m_head = other.m_head;
+    m_tail = other.m_tail;
+
+    other.m_prev = NULL;
+    other.m_curr = NULL;
+    other.m_head = NULL;
+    other.m_tail = NULL;
 }
 
 #endif // LIST_HPP_

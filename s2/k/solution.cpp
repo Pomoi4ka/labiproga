@@ -12,7 +12,7 @@ Solution::generatePayouts(long amount, Stock stock)
 {
     Branches branches;
     if (amount <= 0) {
-        branches.append()->stock = stock;
+        branches.append()->stock.transfer_from(stock);
         return branches;
     }
     if (!stock.hasNext()) return branches;
@@ -26,7 +26,7 @@ Solution::generatePayouts(long amount, Stock stock)
         while (sub.hasNext()) {
             Branch *subBranch = sub.next();
             Branch *b = branches.append();
-            b->payout = subBranch->payout;
+            b->payout.transfer_from(subBranch->payout);
             if (k > 0) {
                 Denom *n = b->payout.pushLeft();
                 n->value = d;
@@ -40,7 +40,7 @@ Solution::generatePayouts(long amount, Stock stock)
                 rem->count = q - k;
             }
 
-            b->stock = subBranch->stock;
+            b->stock.transfer_from(subBranch->stock);
         }
     }
     return branches;
@@ -74,13 +74,13 @@ size_t Solution::solve(Stock stock, AgentNode agents, List<Payout> &result)
         size_t used = count(branch->payout) + subResult;
         if (used < minCount) {
             minCount = used;
-            bestPayout = branch->payout;
-            bestRestResult = restResult;
+            bestPayout.transfer_from(branch->payout);
+            bestRestResult.transfer_from(restResult);
         }
     }
     if (minCount != ~0UL) {
-        result = bestRestResult;
-        *result.pushLeft() = bestPayout;
+        result.transfer_from(bestRestResult);
+        result.pushLeft()->transfer_from(bestPayout);
     }
     return minCount;
 }
