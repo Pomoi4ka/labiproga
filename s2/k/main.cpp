@@ -39,5 +39,12 @@ int main()
     }
     std::cout << "Total: " << total << std::endl;
 
+    std::cout << "Denom remainder:" << std::endl;
+    List<Denom>::ConstNode left = solution.remainder.head();
+    for (; *left; left = left.next()) {
+        std::cout << "   " << left->value
+                  << ": " << left->count << std::endl;
+    }
+
     return 0;
 }

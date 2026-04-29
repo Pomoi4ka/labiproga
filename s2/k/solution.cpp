@@ -98,6 +98,7 @@ Solution::Solution(File const &file)
 {
     Agents agents;
     Stock stock = file.denoms;
+    remainder = file.denoms;
     stock.reset();
 
     for (List<Agent>::ConstNode agent = file.agents.head();
@@ -107,6 +108,12 @@ Solution::Solution(File const &file)
     List<Payout> result;
     if (solve(stock, agents.head(), result) != ~0UL)
         solution.transfer_from(result);
+
+    FinalPayout fp = solution.head();
+    for (; *fp; fp = fp.next()) {
+        Payout::ConstNode d = fp->head();
+        for (; *d; d = d.next()) find(d->value).count -= d->count;
+    }
 }
 
 Solution::Stock::Stock()
@@ -147,4 +154,12 @@ void Solution::Stock::transfer_from(Stock &other)
 {
     totalAvailable = other.totalAvailable;
     List::transfer_from(other);
+}
+
+Denom &Solution::find(size_t value)
+{
+    remainder.reset();
+    for (Denom *d = remainder.next(); d; d = remainder.next())
+        if (d->value == value) return *d;
+    assert(0);
 }
