@@ -16,7 +16,7 @@ private:
 
     static size_t count(Payout const&);
     static Branches generatePayouts(long amount, Stock stock);
-    size_t solve(Stock &stock, AgentNode agents, List<Payout> &result);
+    static size_t solve(Stock &stock, AgentNode agents, List<Payout> &result);
 };
 
 typedef List<Solution::Payout>::ConstNode FinalPayout;
