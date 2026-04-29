@@ -89,7 +89,7 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
         result.transfer_from(bestRestResult);
         result.pushLeft()->transfer_from(bestPayout);
     }
-    for (int i = 0; i < skipNodes; ++i) result.pushLeft();
+    while (skipNodes--) result.pushLeft();
     return minCount;
 }
 
