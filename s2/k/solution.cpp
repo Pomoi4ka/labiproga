@@ -16,6 +16,7 @@ Solution::generatePayouts(long amount, Stock stock)
         return branches;
     }
     if (!stock.hasNext()) return branches;
+    if ((long) stock.avail() < amount) return branches;
     Denom head = stock.popLeft();
     size_t d = head.value;
     size_t q = head.count;
@@ -35,9 +36,8 @@ Solution::generatePayouts(long amount, Stock stock)
 
             Stock &remaining = subBranch->stock;
             if (k < q) {
-                Denom *rem = remaining.pushLeft();
-                rem->value = d;
-                rem->count = q - k;
+                Denom rem = {d, q - k};
+                remaining.pushLeft(rem);
             }
 
             b->stock.transfer_from(subBranch->stock);
@@ -99,4 +99,44 @@ Solution::Solution(File const &file)
     List<Payout> result;
     if (solve(stock, agents.head(), result) != ~0UL)
         solution.transfer_from(result);
+}
+
+Solution::Stock::Stock()
+    : List()
+    , totalAvailable()
+{}
+
+Solution::Stock::Stock(List<Denom> const &other)
+    : List()
+    , totalAvailable()
+{
+    for (List<Denom>::ConstNode node = other.head();
+         *node; node = node.next()) {
+        totalAvailable += node->count * node->value;
+        *List::append() = **node;
+    }
+}
+
+Denom Solution::Stock::popLeft()
+{
+    Denom d = List::popLeft();
+    totalAvailable -= d.value * d.count;
+    return d;
+}
+
+void Solution::Stock::pushLeft(Denom d)
+{
+    *List::pushLeft() = d;
+    totalAvailable += d.value * d.count;
+}
+
+size_t Solution::Stock::avail() const
+{
+    return totalAvailable;
+}
+
+void Solution::Stock::transfer_from(Stock &other)
+{
+    totalAvailable = other.totalAvailable;
+    List::transfer_from(other);
 }
