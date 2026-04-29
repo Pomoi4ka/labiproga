@@ -39,11 +39,5 @@ int main()
     }
     std::cout << "Total: " << total << std::endl;
 
-    std::cout << "Left denoms:" << std::endl;
-    for (Solution::Stock::ConstNode denom = solution.finalStock.head();
-         *denom; denom = denom.next()) {
-        std::cout << denom->value << ": " << denom->count << std::endl;
-    }
-
     return 0;
 }

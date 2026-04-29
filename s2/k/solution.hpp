@@ -2,25 +2,12 @@
 #define SOLUTION_HPP_
 
 struct Solution {
-    struct Stock : List<Denom> {
-        Stock();
-        Stock(List<Denom> const &);
-        Denom popLeft();
-        void transfer_from(Stock &other);
-
-        // different api, but to be able to
-        // track it has to be like that
-        void pushLeft(Denom);
-        size_t avail() const;
-    private:
-        size_t totalAvailable;
-    };
     typedef List<Denom> Payout;
     List<Payout> solution;
-    Stock finalStock;
 
     Solution(File const &file);
 private:
+    struct Stock;
     struct Branch;
 
     typedef List<Branch> Branches;
@@ -33,6 +20,20 @@ private:
 };
 
 typedef List<Solution::Payout>::ConstNode FinalPayout;
+
+struct Solution::Stock : List<Denom> {
+    Stock();
+    Stock(List<Denom> const &);
+    Denom popLeft();
+    void transfer_from(Stock &other);
+
+    // different api, but to be able to
+    // track it has to be like that
+    void pushLeft(Denom);
+    size_t avail() const;
+private:
+    size_t totalAvailable;
+};
 
 struct Solution::Branch {
     Payout payout;

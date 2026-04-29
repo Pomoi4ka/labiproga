@@ -81,7 +81,6 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
         size_t used = count(branch->payout) + subResult;
         if (used < minCount) {
             minCount = used;
-            finalStock = branch->stock;
             bestPayout.transfer_from(branch->payout);
             bestRestResult.transfer_from(restResult);
         }
