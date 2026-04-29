@@ -23,6 +23,7 @@ int main()
     }
 
     file.agents.reset();
+    size_t total = 0;
     for (FinalPayout payout = solution.solution.head();
          *payout; payout = payout.next()) {
         Agent *agent = file.agents.next();
@@ -30,10 +31,13 @@ int main()
         std::cout << agent->name << " (sum " << agent->sum()
                   << ")" << ":" << std::endl;
         for (Solution::Payout::ConstNode denom = payout->head();
-             *denom; denom = denom.next())
+             *denom; denom = denom.next()) {
             std::cout << "    " << denom->value << ": "
                       << denom->count << std::endl;
+            total += denom->count;
+        }
     }
+    std::cout << "Total: " << total << std::endl;
 
     return 0;
 }
