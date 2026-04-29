@@ -57,8 +57,15 @@ size_t Solution::count(Payout const &payout)
 
 size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
 {
-    if (!*agents) return 0;
-    size_t amount = **agents;
+    int skipNodes = 0;
+    size_t amount;
+    for (;;) {
+        if (!*agents) return 0;
+        amount = **agents;
+        if (amount <= stock.avail()) break;
+        skipNodes++;
+        agents = agents.next();
+    }
     AgentNode restAgents = agents.next();
     Branches branches = generatePayouts(amount, stock);
     size_t minCount = ~0;
@@ -74,6 +81,7 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
         size_t used = count(branch->payout) + subResult;
         if (used < minCount) {
             minCount = used;
+            finalStock = branch->stock;
             bestPayout.transfer_from(branch->payout);
             bestRestResult.transfer_from(restResult);
         }
@@ -82,6 +90,7 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
         result.transfer_from(bestRestResult);
         result.pushLeft()->transfer_from(bestPayout);
     }
+    for (int i = 0; i < skipNodes; ++i) result.pushLeft();
     return minCount;
 }
 
