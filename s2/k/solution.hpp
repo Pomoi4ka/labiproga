@@ -7,7 +7,11 @@ struct Solution {
     List<Denom> remainder;
 
     Solution(File const &file);
+    void write(std::ostream &);
+    void writeProtocol(std::ostream &);
+    bool operator!() const;
 private:
+    File const &file;
     struct Stock;
     struct Branch;
 

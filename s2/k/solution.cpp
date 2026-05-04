@@ -95,10 +95,11 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
 
 Solution::Solution(File const &file)
     : solution()
+    , remainder(file.denoms)
+    , file(file)
 {
     Agents agents;
     Stock stock = file.denoms;
-    remainder = file.denoms;
     stock.reset();
 
     for (List<Agent>::ConstNode agent = file.agents.head();
@@ -162,4 +163,38 @@ Denom &Solution::find(size_t value)
     for (Denom *d = remainder.next(); d; d = remainder.next())
         if (d->value == value) return *d;
     assert(0);
+}
+
+void Solution::write(std::ostream &strm)
+{
+    List<Agent>::ConstNode agent = file.agents.head();
+    size_t total = 0;
+    for (FinalPayout payout = solution.head();
+         *payout; payout = payout.next(), agent = agent.next()) {
+        assert(*agent);
+        strm << agent->name << " (sum " << agent->sum()
+             << "):" << std::endl;
+        for (Solution::Payout::ConstNode denom = payout->head();
+             *denom; denom = denom.next()) {
+            strm << "    " << denom->value << ": "
+                 << denom->count << std::endl;
+            total += denom->count;
+        }
+    }
+    strm << "Total: " << total << std::endl;
+}
+
+void Solution::writeProtocol(std::ostream &strm)
+{
+    strm << "Denom remainder:" << std::endl;
+    List<Denom>::ConstNode left = remainder.head();
+    for (; *left; left = left.next()) {
+        strm << "   " << left->value
+             << ": " << left->count << std::endl;
+    }
+}
+
+bool Solution::operator!() const
+{
+    return !solution.hasNext();
 }

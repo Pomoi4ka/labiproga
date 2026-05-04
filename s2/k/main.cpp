@@ -8,8 +8,15 @@
 
 int main()
 {
-    const char *filename = "input.txt";
-    FileReader reader(filename);
+    FileReader reader("input.txt");
+
+    const char *protocolPath = "protocol.txt";
+    std::ofstream protocol(protocolPath);
+    if (!protocol.is_open()) {
+        std::cerr << "ERROR: could not open file: " << protocolPath;
+        return 1;
+    }
+
     File file;
     if (!reader.readFile(file)) {
         reader.reportError();
@@ -17,34 +24,12 @@ int main()
     }
 
     Solution solution(file);
-    if (!solution.solution.hasNext()) {
+    if (!solution) {
         std::cerr << "ERROR: impossible to distribute" << std::endl;
         return 1;
     }
 
-    file.agents.reset();
-    size_t total = 0;
-    for (FinalPayout payout = solution.solution.head();
-         *payout; payout = payout.next()) {
-        Agent *agent = file.agents.next();
-        assert(agent);
-        std::cout << agent->name << " (sum " << agent->sum()
-                  << ")" << ":" << std::endl;
-        for (Solution::Payout::ConstNode denom = payout->head();
-             *denom; denom = denom.next()) {
-            std::cout << "    " << denom->value << ": "
-                      << denom->count << std::endl;
-            total += denom->count;
-        }
-    }
-    std::cout << "Total: " << total << std::endl;
-
-    std::cout << "Denom remainder:" << std::endl;
-    List<Denom>::ConstNode left = solution.remainder.head();
-    for (; *left; left = left.next()) {
-        std::cout << "   " << left->value
-                  << ": " << left->count << std::endl;
-    }
-
+    solution.write(std::cout);
+    solution.writeProtocol(protocol);
     return 0;
 }
