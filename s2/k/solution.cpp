@@ -21,7 +21,7 @@ Solution::generatePayouts(long amount, Stock stock)
     size_t d = head.value;
     size_t q = head.count;
     size_t maxUse = std::min(q, (amount + d - 1) / d);
-    for (size_t k = 0; k <= maxUse; ++k) {
+    for (size_t k = 0; k <= maxUse && k < minUsed; ++k) {
         Branches sub = generatePayouts(amount - k * d, stock);
 
         while (sub.hasNext()) {
@@ -88,6 +88,7 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
     if (minCount != ~0UL) {
         result.transfer_from(bestRestResult);
         result.pushLeft()->transfer_from(bestPayout);
+        minUsed = minCount;
     }
     while (skipNodes--) result.pushLeft();
     return minCount;
@@ -97,6 +98,7 @@ Solution::Solution(File const &file)
     : solution()
     , remainder(file.denoms)
     , file(file)
+    , minUsed(~0)
 {
     Agents agents;
     Stock stock = file.denoms;

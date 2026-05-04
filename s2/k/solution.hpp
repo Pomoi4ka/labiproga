@@ -12,6 +12,8 @@ struct Solution {
     bool operator!() const;
 private:
     File const &file;
+    size_t minUsed;
+
     struct Stock;
     struct Branch;
 
@@ -20,8 +22,8 @@ private:
     typedef Agents::ConstNode AgentNode;
 
     static size_t count(Payout const&);
-    static Branches generatePayouts(long amount, Stock stock);
-    static size_t solve(Stock &stock, AgentNode agents, List<Payout> &result);
+    Branches generatePayouts(long amount, Stock stock);
+    size_t solve(Stock &stock, AgentNode agents, List<Payout> &result);
     Denom &find(size_t);
 };
 
