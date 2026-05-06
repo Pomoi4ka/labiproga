@@ -64,15 +64,11 @@ bool FileReader::nextToken()
         switch (skipState) {
         case SPACES:
             if (c == '#') skipState = LINE;
+            else if (!isSpace(c)) goto over;
             break;
         case LINE:
             if (c == '\n') skipState = SPACES;
             break;
-        }
-
-        switch (skipState) {
-        case SPACES: if (!isSpace(c)) goto over;
-        case LINE: break;
         }
     } over:
 
