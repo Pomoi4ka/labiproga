@@ -1,0 +1,13 @@
+section finance
+30 2
+20 2
+10 5
+5 3
+
+section products
+itemA 1
+itemB 1
+
+section tasks
+agentA [itemA 40]  # сумма 40
+agentB [itemB 50]  # сумма 50

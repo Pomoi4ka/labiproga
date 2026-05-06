@@ -1,0 +1,20 @@
+section finance
+10 5
+5 10
+2 15
+1 20
+
+section products
+widget 2
+
+section tasks
+AgentA [widget 10]   # сумма 20
+AgentB [widget 15]   # сумма 30
+AgentC [widget 20]   # сумма 40
+AgentD [widget 5]    # сумма 10
+AgentE [widget 25]   # сумма 50
+AgentF [widget 30]   # сумма 60
+AgentG [widget 8]    # сумма 16
+AgentH [widget 13]   # сумма 26
+AgentI [widget 18]   # сумма 36
+AgentJ [widget 22]   # сумма 44

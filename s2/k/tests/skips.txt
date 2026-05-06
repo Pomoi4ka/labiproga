@@ -1,0 +1,43 @@
+section tasks
+Tom [apple 3]                 # цена яблока 7 → 21
+Jerry [apple 2 banana 1]      # 14 + 5 = 19 (банан 5)
+Sarah [banana 4]              # 20
+Mike [apple 1 banana 2]       # 7 + 10 = 17
+Lisa [apple 0 banana 3]       # 15
+Oscar [apple 5]               # 35
+Nina [apple 2 banana 2]       # 14+10=24
+Paul [banana 1]               # 5
+Quinn [apple 4 banana 0]      # 28
+Rose [apple 3 banana 3]       # 21+15=36
+Steve [apple 1]               # 7
+Tina [banana 5]               # 25
+Uma [apple 2]                 # 14
+Vera [apple 0 banana 2]       # 10
+Will [apple 3 banana 1]       # 21+5=26
+
+section products
+apple 7
+banana 5
+
+section finance
+25 1
+10 2
+5 3
+2 4
+1 5
+
+# Доступная сумма: 25 +20 +15 +8 +5 = 73
+# Первые три агента: 21+19+20=60 (остаток 13).
+# Mike(17) – не хватает (13<17) → пропуск.
+# Lisa(15) – не хватает (13<15) → пропуск.
+# Oscar(35) – пропуск.
+# Nina(24) – пропуск.
+# Paul(5) – остаток 13 >=5 → выдать.
+# Quinn(28) – остаток 8<28 → пропуск.
+# Rose(36) – пропуск.
+# Steve(7) – остаток 8 >=7 → выдать.
+# Tina(25) – остаток 1<25 → пропуск.
+# Uma(14) – пропуск.
+# Vera(10) – остаток 1<10 → пропуск.
+# Will(26) – пропуск.
+# Обслужены: Tom, Jerry, Sarah, Paul, Steve.

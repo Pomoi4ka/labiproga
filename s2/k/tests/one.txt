@@ -1,0 +1,12 @@
+section finance
+50 2
+20 3
+10 5
+5 4
+1 10
+
+section products
+productX 1
+
+section tasks
+agent1 [productX 100]  # сумма 100
