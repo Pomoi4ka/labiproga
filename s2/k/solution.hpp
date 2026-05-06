@@ -12,7 +12,6 @@ struct Solution {
     bool operator!() const;
 private:
     File const &file;
-    size_t minUsed;
 
     struct Stock;
     struct Branch;

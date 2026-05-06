@@ -21,7 +21,7 @@ Solution::generatePayouts(long amount, Stock stock)
     size_t d = head.value;
     size_t q = head.count;
     size_t maxUse = std::min(q, (amount + d - 1) / d);
-    for (size_t k = 0; k <= maxUse && k < minUsed; ++k) {
+    for (size_t k = 0; k <= maxUse; ++k) {
         Branches sub = generatePayouts(amount - k * d, stock);
 
         while (sub.hasNext()) {
@@ -58,14 +58,8 @@ size_t Solution::count(Payout const &payout)
 size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
 {
     int skipNodes = 0;
-    size_t amount;
-    for (;;) {
-        if (!*agents) return 0;
-        amount = **agents;
-        if (amount <= stock.avail()) break;
-        skipNodes++;
-        agents = agents.next();
-    }
+    if (!*agents) return 0;
+    size_t amount = **agents;
     AgentNode restAgents = agents.next();
     Branches branches = generatePayouts(amount, stock);
     size_t minCount = ~0;
@@ -77,7 +71,12 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
         List<Payout> restResult;
         Branch *branch = branches.next();
         size_t subResult = solve(branch->stock, restAgents, restResult);
-        if (subResult == ~0UL) continue;
+        while (subResult == ~0UL) {
+            restAgents = restAgents.next();
+            subResult = solve(branch->stock, restAgents, restResult);
+            restResult.pushLeft();
+        }
+
         size_t used = count(branch->payout) + subResult;
         if (used < minCount) {
             minCount = used;
@@ -88,7 +87,6 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
     if (minCount != ~0UL) {
         result.transfer_from(bestRestResult);
         result.pushLeft()->transfer_from(bestPayout);
-        minUsed = minCount;
     }
     while (skipNodes--) result.pushLeft();
     return minCount;
@@ -98,7 +96,6 @@ Solution::Solution(File const &file)
     : solution()
     , remainder(file.denoms)
     , file(file)
-    , minUsed(~0)
 {
     Agents agents;
     Stock stock = file.denoms;
@@ -171,8 +168,8 @@ void Solution::write(std::ostream &strm)
 {
     List<Agent>::ConstNode agent = file.agents.head();
     size_t total = 0;
-    for (FinalPayout payout = solution.head();
-         *payout; payout = payout.next(), agent = agent.next()) {
+    for (FinalPayout payout = solution.head(); *payout;
+         payout = payout.next(), agent = agent.next()) {
         assert(*agent);
         strm << agent->name << " (sum " << agent->sum()
              << "):" << std::endl;
