@@ -20,6 +20,7 @@ std::ostream &operator<<(std::ostream &sink, String const &str)
     for (; *node; node = node.next()) {
         StringBlock const *block = *node;
         sink.write(block->data(), block->len());
+        if (*node.next()) sink << " -> ";
     }
     return sink;
 }
