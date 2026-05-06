@@ -6,11 +6,18 @@
 #include "fileReader.hpp"
 #include "solution.hpp"
 
-int main()
+int main(int argc, const char *argv[])
 {
-    FileReader reader("input.txt");
-
+    const char *filename = "input.txt";
     const char *protocolPath = "protocol.txt";
+
+    if (argc > 1)
+        filename = argv[1];
+    if (argc > 2)
+        protocolPath = argv[2];
+
+    FileReader reader(filename);
+
     std::ofstream protocol(protocolPath);
     if (!protocol.is_open()) {
         std::cerr << "ERROR: could not open file: " << protocolPath;
