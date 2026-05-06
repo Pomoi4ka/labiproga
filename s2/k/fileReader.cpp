@@ -52,11 +52,29 @@ bool FileReader::nextToken()
     char c;
     m_token.reset();
 
-    do {
-        if (get(c)) continue;
-        m_errorKind = ERR_UNEXPECTED_EOF;
-        return false;
-    } while (isSpace(c));
+    enum {
+        SPACES, LINE
+    } skipState = SPACES;
+
+    for (;;) {
+        if (!get(c)) {
+            m_errorKind = ERR_UNEXPECTED_EOF;
+            return false;
+        }
+        switch (skipState) {
+        case SPACES:
+            if (c == '#') skipState = LINE;
+            break;
+        case LINE:
+            if (c == '\n') skipState = SPACES;
+            break;
+        }
+
+        switch (skipState) {
+        case SPACES: if (!isSpace(c)) goto over;
+        case LINE: break;
+        }
+    } over:
 
     m_tkCol = m_col;
     m_tkRow = m_row;
