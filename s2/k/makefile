@@ -9,19 +9,11 @@ SOURCES = \
 	file.cpp \
 	solution.cpp
 
-.SUFFIXES: .txt .out
-
 OBJS = $(SOURCES:.cpp=.o)
 
 main: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
 
-TESTS=$(wildcard tests/*.txt)
-
-.PHONY: tests runTests
-tests: main runTests
-
-runTests: $(TESTS:.txt=.out)
-
-.txt.out:
-	./main $< $(<:.txt=.prot) > $@ || :
+.PHONY: tests
+tests: main
+	$(MAKE) -C tests
