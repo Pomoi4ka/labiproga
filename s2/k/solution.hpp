@@ -2,31 +2,28 @@
 #define SOLUTION_HPP_
 
 struct Solution {
-    typedef List<Denom> Payout;
-    List<Payout> solution;
-    List<Denom> remainder;
-
     Solution(File const &file);
     void write(std::ostream &);
     void writeProtocol(std::ostream &);
     bool operator!() const;
 private:
-    File const &file;
-
     struct Stock;
     struct Branch;
 
     typedef List<Branch> Branches;
     typedef List<size_t> Agents;
     typedef Agents::ConstNode AgentNode;
+    typedef List<Denom> Payout;
+
+    List<Payout> solution;
+    List<Denom> remainder;
+    File const &file;
 
     static size_t count(Payout const&);
-    Branches generatePayouts(long amount, Stock stock);
-    size_t solve(Stock &stock, AgentNode agents, List<Payout> &result);
+    static Branches generatePayouts(long amount, Stock stock);
+    static size_t solve(Stock &stock, AgentNode agents, List<Payout> &result);
     Denom &find(size_t);
 };
-
-typedef List<Solution::Payout>::ConstNode FinalPayout;
 
 struct Solution::Stock : List<Denom> {
     Stock();

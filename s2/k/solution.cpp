@@ -109,7 +109,7 @@ Solution::Solution(File const &file)
     if (solve(stock, agents.head(), result) != ~0UL)
         solution.transfer_from(result);
 
-    FinalPayout fp = solution.head();
+    List<Payout>::ConstNode fp = solution.head();
     for (; *fp; fp = fp.next()) {
         Payout::ConstNode d = fp->head();
         for (; *d; d = d.next()) find(d->value).count -= d->count;
@@ -168,7 +168,7 @@ void Solution::write(std::ostream &strm)
 {
     List<Agent>::ConstNode agent = file.agents.head();
     size_t total = 0;
-    for (FinalPayout payout = solution.head(); *payout;
+    for (List<Payout>::ConstNode payout = solution.head(); *payout;
          payout = payout.next(), agent = agent.next()) {
         assert(*agent);
         strm << agent->name << " (sum " << agent->sum()
