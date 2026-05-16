@@ -165,28 +165,35 @@ void FileReader::reportError() const
               << ": error: ";
     switch (m_errorKind) {
     case ERR_FILE_UNKNOWN_PRODUCT:
-        std::cerr << "unknown product: `" << m_token << "`" << std::endl;
+        std::cerr << "unknown product: `"
+                  << m_token << "`" << std::endl;
         break;
     case ERR_DUPLICATION_TASK:
-        std::cerr << "task duplication: `" << m_token << "`" << std::endl;
+        std::cerr << "task duplication: `"
+                  << m_token << "`" << std::endl;
         break;
     case ERR_DUPLICATION_PRODUCT:
-        std::cerr << "product duplication: `" << m_token << "`" << std::endl;
+        std::cerr << "product duplication: `"
+                  << m_token << "`" << std::endl;
         break;
     case ERR_UNKNOWN_SECTION:
-        std::cerr << "unknown section: `" << m_token << "`" << std::endl;
+        std::cerr << "unknown section: `"
+                  << m_token << "`" << std::endl;
         break;
     case ERR_UNEXPECTED_EOF:
-        std::cerr << "unexpected end of file, expected token of kind "
+        std::cerr << "unexpected end of file, expected "
+                  << "token of kind "
                   << tokenKind(m_expectedKind) << std::endl;
         break;
     case ERR_UNEXPECTED_TOKEN:
-        std::cerr << "unexpected token `" << m_token << "` of kind "
-                  << tokenKind(m_tokenKind) << " when expected kind is "
+        std::cerr << "unexpected token `" << m_token
+                  << "` of kind " << tokenKind(m_tokenKind)
+                  << " when expected kind is "
                   << tokenKind(m_expectedKind) << std::endl;
         break;
     case ERR_UNKNOWN_TOKEN:
-        std::cerr << "unknown token: `" << m_token << "`" << std::endl;
+        std::cerr << "unknown token: `"
+                  << m_token << "`" << std::endl;
         break;
     case ERR_NONE: assert(0 && "unreachable");
     }
