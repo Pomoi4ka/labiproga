@@ -1,0 +1,8 @@
+*.pdf
+*.toc
+*.aux
+perf.*
+\#*\#
+*.log
+TAGS
+protocol.txt

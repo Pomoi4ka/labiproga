@@ -1,0 +1,1525 @@
+\documentclass[14pt]{extarticle}
+
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{extsizes}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage[english,russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper]{geometry}
+\geometry{top=20mm,bottom=30mm,left=20mm,right=15mm}
+\usepackage[T1,T2A]{fontenc}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{caption}
+\usepackage{lastpage}
+\usepackage{tocloft}
+\usepackage{titlesec}
+\usepackage{multirow}
+\usepackage{tabularray}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codebg}{gray}{0.96}
+\definecolor{comment}{gray}{0.45}
+\definecolor{keyword}{RGB}{0, 75, 150}
+\definecolor{string}{RGB}{150, 80, 30}
+\definecolor{number}{gray}{0.5}
+\definecolor{identifier}{rgb}{0,0,0}
+
+\lstdefinestyle{coolprint}{
+  basicstyle   = \ttfamily\small,
+  keywordstyle = \bfseries\color{keyword},
+  commentstyle = \itshape\color{comment},
+  stringstyle  = \color{string},
+  identifierstyle = \color{identifier},
+  backgroundcolor = \color{codebg},
+  numbers      = left,
+  numberstyle  = \small\color{number},
+  numbersep    = 5pt,
+  frame        = single,
+  framerule    = 0.8pt,
+  framesep     = 3pt,
+  breaklines   = true,
+  breakatwhitespace = true,
+  tabsize      = 4,
+  showspaces   = false,
+  showstringspaces = false,
+  showtabs     = false,
+  xleftmargin  = 10pt,
+  xrightmargin = 5pt,
+  aboveskip    = \medskipamount,
+  belowskip    = \medskipamount,
+  captionpos   = b,
+}
+\lstset{style=coolprint}
+
+\usepackage{ragged2e}
+\justifying
+
+\titleformat{\section}{\centering\normalfont\bfseries}{\thesection}{1em}{\MakeUppercase}
+\titleformat{\subsection}{\normalfont\bfseries}{\thesubsection}{1em}{}
+\renewcommand{\cftsecfont}{\normalfont}
+\renewcommand{\cftsecpagefont}{\normalfont}
+
+
+\renewcommand{\baselinestretch}{1.5}
+\captionsetup[figure]{name={Рис.},labelsep=endash}
+
+\begin{document}
+\renewcommand\contentsname{\normalsize СОДЕРЖАНИЕ}
+
+\begin{center}
+  \textbf{МИНОБРНАУКИ РОССИИ} \\
+  \textbf{САНКТ-ПЕТЕРБУРГСКИЙ ГОСУДАРСТВЕННЫЙ} \\
+  \textbf{ЭЛЕКТРОТЕХНИЧЕСКИЙ УНИВЕРСИТЕТ} \\
+  \textbf{«ЛЭТИ» ИМ. В.И. УЛЬЯНОВА (ЛЕНИНА)} \\
+  \textbf{Кафедра САПР} \\
+\end{center}
+
+\vspace{0.25\textheight}
+
+\begin{center}
+\textbf{КУРСОВАЯ РАБОТА} \\
+\textbf{по дисциплине «Программирование»} \\
+\textbf{Тема: Оптимизация ограниченных ресурсов с использованием связанных списков} \\
+\end{center}
+
+\vspace*{\fill}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{ l X c }
+ Студент гр. 5352 & \rule{8cm}{0.2mm} & Соболевский М.А. \\
+ Преподаватель & \rule{8cm}{0.2mm} & Калмычков В.А. \\
+\end{tabularx}
+\end{center}
+
+\vspace{3em}
+
+\begin{center}
+Санкт-Петербург\\
+\the\year
+\end{center}
+
+\thispagestyle{empty}
+
+\pagebreak
+
+\centering \textbf{ЗАДАНИЕ} \\ \textbf{НА КУРСОВУЮ РАБОТУ}
+
+\begin{tabularx}{\textwidth}{ X }
+  Студент Соболевский М.А.\\
+  Группа 5352 \\
+  Тема работы: Оптимизация ограниченных ресурсов с использованием связанных списков \\
+  Исходные данные: Фирма отправляет своих торговых агентов за товарами различного вида и выдает им средства на закупку. У каждого агента свое задание (по количеству и виду товаров). На фирме имеется конечный запас денежных знаков разного номинала. Автоматизировать процесс раздачи их каждому агенту так, чтобы количество выданных купюр было минимальным. \\
+  Содержание пояснительной записки: исходная формулировка задания, анализ задания и выполнение контрольного примера, математическая постановка задачи, особенности решения задания на компьютере, форматы представления данных на внешних носителях при использовании файлов, внутренний формат представления данных, разбиение основной задачи на подзадачи, описание метода решения отдельных подзадач, оформление описания алгоритма в виде блок-схемы, текст программы, тестовые примеры, выводы. \\
+  Предполагаемый объем пояснительной записки: \\
+  Не менее \pageref{LastPage} страниц. \\
+  Дата выдачи задания: 26.02.26 \\
+  Дата сдачи реферата: \\
+  Дата защиты реферата: \\
+\end{tabularx}
+
+\begin{tabularx}{\textwidth}{ l X c }
+  Студент	& \rule{8cm}{0.2mm} &	Соболевский М.А. \\
+  Преподаватель	& \rule{8cm}{0.2mm} &	Калмычков В.А.
+\end{tabularx}
+
+\pagebreak
+
+\centering \textbf{АННОТАЦИЯ}
+
+\justifying
+В курсовой работе разработана программа для автоматизации выдачи денежных средств торговым агентам. На вход подаются: список товаров с ценами, задания каждого агента (вид товара и требуемое количество), а также ограниченный запас купюр различных номиналов. Необходимо выдать каждому агенту сумму, равную стоимости его закупки, используя имеющиеся купюры, так чтобы общее количество выданных купюр было минимальным. Задача сводится к целочисленному линейному программированию. Из-за дискретности и ограниченности ресурсов применяется экспоненциальный алгоритм (полный перебор с отсечением), который эффективен при небольшом числе агентов и номиналов (до 10–15). В программе используются связанные списки для хранения динамических конфигураций распределения купюр, что позволяет гибко управлять памятью, но затрудняет применение некоторых эвристик.
+
+\vfill
+
+\centering \textbf{SUMMARY}
+
+\justifying
+This term paper describes a program designed to automate the issuance of banknotes to sales agents. The input data include: a list of products with their prices, each agent’s task (product type and required quantity), and a limited stock of banknotes of various denominations. The goal is to give each agent the exact amount needed for their purchase using the available banknotes, while minimizing the total number of banknotes issued. The problem reduces to integer linear programming. Due to the discrete and constrained nature of the resources, an exponential algorithm (exhaustive search with pruning) is applied, which is efficient for a small number of agents and denominations (up to 10–15). The program uses linked lists to store dynamic configurations of banknote distribution, which provides flexible memory management but complicates the application of certain heuristics.
+
+\pagebreak
+
+\centering \tableofcontents \justifying
+
+\pagebreak
+
+\section{Исходная формулировка задания}
+Фирма отправляет своих торговых агентов за товарами различного вида и выдает им средства на закупку. У каждого агента свое задание (по количеству и виду товаров). На фирме имеется конечный запас денежных знаков разного номинала. Автоматизировать процесс раздачи их каждому агенту так, чтобы количество выданных купюр было минимальным.
+
+\section{Анализ задания и выполнение контрольного примера}
+
+
+
+\section{Математическая постановка задачи}
+
+В этой постановке задачи будет рассматриваться ситуация, когда программа уже обработала файл и привела данные к формату, требуемому для оптимизации. Стадия, где для каждого агента собирается полная требуемая сумма из произведений цен товаров и их количеств, подразумевается выполненной на стадии чтении файла.
+
+\subsection{Исходные данные}
+Дано: $(a_1, a_2, \dots, a_n)$, где $n$ - количество агентов, $a_i \in \bar{\mathbb{N}}$ - сумма стоимостей всех товаров для одного агента; \\
+$(d_1, d_2, \dots, d_m)$, где $m$ - количество номиралов, $d_i = (d, c) \in \bar{\mathbb{N}} \times \bar{\mathbb{N}}$, $d$ - значение номинала, $c$ - его количество.
+Множество $\bar{\mathbb{N}} = \mathbb{N}\cup\{0\}$
+
+\subsection{Результирующие (выходные) данные}
+
+В качестве результата выводится следующий набор: \\
+$(p_1, p_2, \dots, p_n)$, где $p_i = (\hat{d}_1, \hat{d}_2, \dots, \hat{d}_{N(i)})$ - выплата, $\hat{d}_i = (d, \tilde{c}) \in \bar{\mathbb{N}} \times \mathbb{N}$, $d$ - значение номинала, $\tilde{c}$ - его выданное количество, $N(i): \mathbb{N} \rightarrow \bar{\mathbb{N}}$ - количество разных номиналов выданных агенту с индексом $i$.
+
+\subsection{Связь выходных данных с исходными данными}
+\begin{align*}
+  \mathbb{P}_i &= (\bar{\mathbb{N}} \times \mathbb{N})^{N(i)} \hspace{1em}\text{ - можество выплат для $i$ агента}\\
+  \mathbb{S} &= \bar{\mathbb{N}} \times \bar{\mathbb{N}} \hspace{1em}\text{ - множество для запаса купюр одного номинала}\\
+  P&: \bar{\mathbb{N}}^{\hat{n}} \times \mathbb{S}^{\hat{m}} \rightarrow \mathbb{P}_1 \times \mathbb{P}_2 \times \dots \times \mathbb{P}_{\hat{n}} \\
+  P&((a_1, a_2, \dots, a_n), s) = P'(1) \smallfrown \dots \smallfrown P'(n), \\
+  P'&(j) = p_{\operatorname{argmin}_{i=\{1..k\}}(S_s(i))} \\
+  S&((a_j, a_{j+1}, \dots, a_{n-j}), s) = \min_{i=1..k}\{S_s(i)\}\\
+  S_s&(i) = c(p_i) + S((a_{j+1},\dots, a_n), s_i)\\
+  c&(((d_1, c_1), \dots, (d_n, c_n))) = \sum_1^nc_i \\
+  (p_i&, s_i) = b_i, (b_1, \dots, b_k) = G_p(a_j, s)\\
+  G_p&: \mathbb{Z} \times \mathbb{S}^{\tilde{m}} \rightarrow (\mathbb{P}^{\tilde{n}} \times \mathbb{S}^{\tilde{m}})^{k} \\
+  G_p&(a, s) = (((), s)), \hspace{1em} a \le 0 \\
+  G_p&(a, ()) = () \\
+  G_p&(a, ((d, c), s_2, \dots, s_m)) = G_p(a, (s_2, \dots, s_m)) \smallfrown (G_b(q))_{q=1}^{\min\left\{c, \left\lceil\frac{a}{d}\right\rceil\right\}}, \\
+  G_b&(q) = (G_s \circ G_p)(a - q \cdot d, (s_2, \dots, s_m)) \\
+  G_s(p&, s) = ((d, q) \smallfrown p, (d, c - q) \smallfrown s), q < c \\
+  G_s(p&, s) = ((d, q) \smallfrown p, s), q \ge c \\
+\end{align*}
+
+\section{Особенности решения задания на компьютере}
+
+\section{Форматы представления данных на внешних носителях при использовании файлов}
+
+Входный файл представляет собой текстовый файл, имеющий секционный формат. Секции могут идти в любом порядке. Файл принимет секции с именами ``products'', ``tasks'' и ``finance''. После имени секции идёт содержимое заявленной секции, согласно формату данных, принадлежащих ей.
+
+Секция с продуктами ``products'' имеет записи из двух полей: имени продукта и его цены.
+
+Секция с задачами ``tasks'' имеет записи из имени агента и списка имён и количеств его продуктов, заданного внутри квадратных скобок.
+
+Секция с финансами ``finance'' имеет записи из значения номинала и его количестве.
+
+Формат файла можно задать следующим образом:\\
+\begin{ttfamily}
+section products \\
+<название> <цена> \\
+... \\
+section tasks \\
+<имя агента> [ <название> <количество> ... ] \\
+... \\
+section finance \\
+<значение> <количество> \\
+...
+\end{ttfamily}
+
+\section{Внутренний формат представления данных}
+
+В коде программы был объявлен ряд типовых псевдонимов для удобной работы.
+
+\begin{ttfamily}
+
+  \begin{tblr}{colspec={|X|X}, hlines, vlines}
+    Тип & Псевдоним \\
+    List<Solution::Branch> & Solution::Branches \\
+    List<size\_t> & Solution::Agents \\
+    Solution::Agents::ConstNode & Solution::AgentNode \\
+    List<File::Denom> & Solution::Payout \\
+    bool (FileReader:: *)(struct File \&) & FileReader::SectionReader \\
+    List<StringBlock> & StringBlocks
+  \end{tblr}
+
+  \begin{longtblr}{colspec={|X|l|c|X|}, hlines, vlines}
+    Имя типа & \SetCell[c=3]{c} Поля & & \\
+    & Имя & Тип & Описание \\
+    \SetCell[r=4]{m} class List<T> & m\_curr & Node* & указатель на текущий узел \\
+    & m\_prev & Node* & указатель на предыдущий узел \\
+    & m\_head & Node* & первый элемент \\
+    & m\_tail & Node* & последний элемент \\
+    class List<T>::ConstNode & node & Node* & указатель на узел \\
+    \SetCell[r=2]{m} struct List<T>::Node & item & T & данные, принадлежащие узлу списка \\
+    & next & Node* & следующий узел \\
+    class String & <наследованно> & StringBlocks & символы строки \\
+    class StringBlock & block & {char[STRING\\\_BLOCK\_SIZE]} & символы блока \\
+    \SetCell[r=11]{m} class FileReader & m\_file & std::ifstream & поток файла \\
+    & m\_token & String & последний токен \\
+    & m\_number & size\_t & последнее прочитанное число \\
+    & m\_tkCol & size\_t & столбец токена в файле \\
+    & m\_tkRow & size\_t & строка токена в файле \\
+    & m\_col & size\_t & текущий столбец в файле \\
+    & m\_row & size\_t & текущая строка в файле \\
+    & m\_tokenKind & TokenKind & тип токена \\
+    & m\_expectedKind & TokenKind & ожидаемый тип токена \\
+    & m\_path & const char * & путь читаемого файла \\
+    & m\_errorKind & ErrorKind & вид ошибки \\
+    \SetCell[r=2]{m} struct Product & name & String & имя товара \\
+    & price & size\_t & стоимость \\
+    \SetCell[r=4]{m} struct Task & product & Product * & указатель на запрошенный товар \\
+    & count & size\_t & количество которое нужно приобрести \\
+    & row & size\_t & строка в исходном файле \\
+    & col & size\_t & столбец в исходном файле \\
+    \SetCell[r=2]{m} struct Agent & name & String & имя агента \\
+    & tasks & List<Task> & список задач \\
+    \SetCell[r=2]{m} struct Denom & value & size\_t & значение номинала \\
+    & count & size\_t & доступное количество \\
+    \SetCell[r=3]{m} struct File & products & List<Product> & список продуктов \\
+    & agents & List<Agent> & список агентов \\
+    & denoms & List<Denom> & список доступных номиналов \\
+    \SetCell[r=3]{m} struct Solution & solution & List<Payout> & оптимальная выдача средств \\
+    & remainder & List<Denom> & остаток средств \\
+    & file & File const \& & файл со всем добром \\
+    \SetCell[r=2]{m} struct Solution::Stock & <наследованно> & List<Denom> & запас средств по номиналам \\
+    & totalAvailable & size\_t & доступная сумма в запасе \\
+    \SetCell[r=2]{m} struct Solution::Branch & payout & Payout & выплата этой ветки \\
+    & stock & Stock & новый запас этой ветки
+  \end{longtblr}
+\end{ttfamily}
+
+Также объявлены перечисления:
+
+\begin{ttfamily}
+  \begin{longtblr}{colspec={|l|X|X}, hlines, vlines}
+    Имя перечисления & Имя константы & Значение \\
+    \SetCell[r=5]{m} TokenKind & TK\_SECTION & токен для ключевого слово ``section'' \\
+    & TK\_ID & токен идентификатора \\
+    & TK\_NUMBER & токен числа \\
+    & TK\_OBRACKET & токен открывающей квадратной скобки \\
+    & TK\_CBRACKET & токен закрывающей квадратной скобки \\
+    \SetCell[r=8]{m} ErrorKind & ERR\_NONE & отсутствие ошибки \\
+        & ERR\_UNKNOWN\_TOKEN & ошибка неизвестный токен \\
+        & ERR\_UNEXPECTED\_TOKEN & ошибка неожиданный токен \\
+        & ERR\_UNEXPECTED\_EOF & ошибка неожиданный конец файла \\
+        & ERR\_UNKNOWN\_SECTION & ошибка неизвестная секция \\
+        & ERR\_DUPLICATION\_PRODUCT & ошибка найден дупликат продукта \\
+        & ERR\_DUPLICATION\_TASK & ошибка найден дупликат задания \\
+        & ERR\_FILE\_UNKNOWN\_PRODUCT & ошибка неизвестный товар \\
+  \end{longtblr}
+\end{ttfamily}
+
+\section{Разбиение основной задачи на подзадачи}
+
+\section{Описание метода решения отдельных подзадач}
+
+\section{Оформление описания алгоритма в виде блок-схемы}
+
+\section{Текст программы}
+
+
+chars.hpp:
+
+\begin{lstlisting}[language=C++]
+#ifndef CHARS_HPP_
+#define CHARS_HPP_
+
+bool isDigit(char x);
+bool isAlpha(char x);
+bool isSpace(char x);
+
+#endif // CHARS_HPP_
+\end{lstlisting}
+
+
+consts.hpp:
+
+\begin{lstlisting}[language=C++]
+#ifndef CONSTS_HPP_
+#define CONSTS_HPP_
+
+const size_t STRING_BLOCK_SIZE = 6;
+const size_t PRODUCT_PRICE_UNKNOWN = ~0;
+extern const char *SECTION_KEYWORD;
+extern const char *SPACE_SYMBOLS;
+
+#endif // CONSTS_HPP_
+\end{lstlisting}
+
+
+file.hpp:
+
+\begin{lstlisting}[language=C++]
+#ifndef FILE_HPP_
+#define FILE_HPP_
+
+struct Product {
+    String name;
+    size_t price;
+
+    Product();
+};
+
+struct Task {
+    Product *product;
+    size_t count;
+    size_t row, col;
+};
+
+struct Agent {
+    String name;
+    List<Task> tasks;
+
+    Task *findTask(Product *);
+    size_t sum() const;
+};
+
+struct Denom {
+    size_t value;
+    size_t count;
+};
+
+struct File {
+    List<Product> products;
+    List<Agent>   agents;
+    List<Denom>   denoms;
+
+    Product *findOrInsertProduct(String const &);
+    Agent *findOrInsertAgent(String const &);
+    Denom *findOrInsertDenom(size_t);
+};
+
+#endif // FILE_HPP_
+\end{lstlisting}
+
+
+fileReader.hpp:
+
+\begin{lstlisting}[language=C++]
+#ifndef FILE_READER_HPP_
+#define FILE_READER_HPP_
+
+class FileReader {
+    enum TokenKind {
+        TK_SECTION,
+        TK_ID,
+        TK_NUMBER,
+        TK_OBRACKET,
+        TK_CBRACKET
+    };
+
+    enum ErrorKind {
+        ERR_NONE,
+        ERR_UNKNOWN_TOKEN,
+        ERR_UNEXPECTED_TOKEN,
+        ERR_UNEXPECTED_EOF,
+        ERR_UNKNOWN_SECTION,
+        ERR_DUPLICATION_PRODUCT,
+        ERR_DUPLICATION_TASK,
+        ERR_FILE_UNKNOWN_PRODUCT
+    };
+
+    std::ifstream m_file;
+    String        m_token;
+    size_t        m_number;
+
+    size_t m_tkCol, m_tkRow;
+    size_t m_col, m_row;
+    TokenKind     m_tokenKind;
+    TokenKind     m_expectedKind;
+    const char   *m_path;
+    ErrorKind     m_errorKind;
+
+    typedef bool (FileReader:: *SectionReader)(struct File &);
+
+    bool readProductsSection(struct File &);
+    bool readTasksSection(struct File &);
+    bool readFinanceSection(struct File &);
+
+    static SectionReader getSectionReader(String const &);
+
+    bool get(char &);
+    bool expectToken(TokenKind);
+    bool checkTokenKind(TokenKind);
+    bool nextToken();
+    bool validate(struct File &);
+    static const char *tokenKind(TokenKind);
+public:
+    FileReader(const char *);
+
+    bool readFile(struct File &);
+    void reportError() const;
+};
+
+#endif // FILE_READER_HPP_
+\end{lstlisting}
+
+
+list.hpp:
+
+\begin{lstlisting}[language=C++]
+#ifndef LIST_HPP_
+#define LIST_HPP_
+
+#include <cassert>
+
+template <typename T>
+class List {
+    struct Node;
+    Node *m_curr;
+    Node *m_prev;
+    Node *m_head;
+    Node *m_tail;
+
+public:
+    class ConstNode;
+
+    List();
+    ~List();
+    List(List const&);
+    T *append();
+
+    T *next();
+    bool hasNext() const;
+    void reset();
+    ConstNode head() const;
+    T *tail();
+    T *pushLeft();
+    T popLeft();
+    void transfer_from(List &other);
+
+    List &operator=(List const&);
+};
+
+template <typename T>
+class List<T>::ConstNode {
+    Node *node;
+public:
+    ConstNode(Node *);
+
+    ConstNode next() const;
+    T const *operator*() const;
+    T const *operator->() const;
+};
+
+template <typename T>
+List<T>::ConstNode::ConstNode(Node *node)
+    : node(node)
+{}
+
+template <typename T>
+typename List<T>::ConstNode List<T>::ConstNode::next() const
+{
+    return node->next;
+}
+
+template <typename T>
+T const *List<T>::ConstNode::operator*() const
+{
+    if (node) return &node->item;
+    return NULL;
+}
+
+template <typename T>
+T const *List<T>::ConstNode::operator->() const
+{
+    return **this;
+}
+
+template <typename T>
+struct List<T>::Node {
+    T item;
+    Node *next;
+
+    inline Node();
+};
+
+template <typename T>
+List<T>::Node::Node()
+    : item()
+    , next()
+{}
+
+template <typename T>
+List<T>::List()
+    : m_curr()
+    , m_prev()
+    , m_head()
+    , m_tail()
+{}
+
+template <typename T>
+List<T>::~List()
+{
+    Node *node = m_head;
+    while (node) {
+        Node *next = node->next;
+        delete node;
+        node = next;
+    }
+}
+
+template <typename T>
+typename List<T>::ConstNode List<T>::head() const
+{
+    return this->m_head;
+}
+
+template <typename T>
+T *List<T>::tail()
+{
+    if (m_tail) return &m_tail->item;
+     return NULL;
+}
+
+template <typename T>
+void List<T>::reset()
+{
+    m_curr = NULL;
+    m_prev = NULL;
+}
+
+template <typename T>
+T *List<T>::append()
+{
+    Node *node = new Node;
+    if (m_tail) m_tail->next = node;
+    m_tail = node;
+    if (!m_head) m_head = m_tail;
+    return &node->item;
+}
+
+template <typename T>
+T *List<T>::next()
+{
+    m_prev = m_curr;
+    if (!m_curr) m_curr = m_head;
+    else m_curr = m_curr->next;
+    return m_curr ? &m_curr->item : NULL;
+}
+
+template <typename T>
+bool List<T>::hasNext() const
+{
+    if (m_curr) return !!m_curr->next;
+    if (m_head) return !m_prev;
+    return false;
+}
+
+template <typename T>
+List<T>::List(List<T> const &other)
+    : m_curr()
+    , m_prev()
+    , m_head()
+    , m_tail()
+{
+    if (!other.m_head) return;
+    Node *node = new Node(*other.m_head);
+    m_head = node;
+    if (other.m_curr == other.m_head) m_curr = node;
+    if (other.m_prev == other.m_head) m_prev = node;
+    while (node->next) {
+        if (other.m_curr == node->next) m_curr = node->next;
+        if (other.m_prev == node->next) m_prev = node->next;
+        node = node->next = new Node(*node->next);
+    }
+    m_tail = node;
+}
+
+template <typename T>
+List<T> &List<T>::operator=(List<T> const &other)
+{
+    this->~List();
+    return *new (this) List(other);
+}
+
+template <typename T>
+T List<T>::popLeft()
+{
+    Node *head = m_head;
+    if (m_curr == head) next();
+    if (m_prev == head) m_prev = NULL;
+    if (m_head == m_tail)
+        m_tail = m_head->next;
+    m_head = m_head->next;
+    T result = head->item;
+    delete head;
+    return result;
+}
+
+template <typename T>
+T *List<T>::pushLeft()
+{
+    Node *node = new Node;
+    node->next = m_head;
+    if (!m_tail) m_tail = node;
+    m_head = node;
+    return &node->item;
+}
+
+template <typename T>
+void List<T>::transfer_from(List<T> &other)
+{
+    this->~List();
+    m_prev = other.m_prev;
+    m_curr = other.m_curr;
+    m_head = other.m_head;
+    m_tail = other.m_tail;
+
+    other.m_prev = NULL;
+    other.m_curr = NULL;
+    other.m_head = NULL;
+    other.m_tail = NULL;
+}
+
+#endif // LIST_HPP_
+\end{lstlisting}
+
+
+solution.hpp:
+
+\begin{lstlisting}[language=C++]
+#ifndef SOLUTION_HPP_
+#define SOLUTION_HPP_
+
+struct Solution {
+    Solution(File const &file);
+    void write(std::ostream &);
+    void writeProtocol(std::ostream &);
+    bool operator!() const;
+private:
+    struct Stock;
+    struct Branch;
+
+    typedef List<Branch> Branches;
+    typedef List<size_t> Agents;
+    typedef Agents::ConstNode AgentNode;
+    typedef List<Denom> Payout;
+
+    List<Payout> solution;
+    List<Denom> remainder;
+    File const &file;
+
+    static size_t count(Payout const&);
+    static Branches generatePayouts(long amount, Stock stock);
+    static size_t solve(Stock &stock, AgentNode agents, List<Payout> &result);
+    Denom &find(size_t);
+};
+
+struct Solution::Stock : List<Denom> {
+    Stock();
+    Stock(List<Denom> const &);
+    Denom popLeft();
+    void transfer_from(Stock &other);
+
+    // different api, but to be able to
+    // track it has to be like that
+    void pushLeft(Denom);
+    size_t avail() const;
+private:
+    size_t totalAvailable;
+};
+
+struct Solution::Branch {
+    Payout payout;
+    Stock stock;
+};
+
+#endif // SOLUTION_HPP_
+\end{lstlisting}
+
+
+stringBlock.hpp:
+
+\begin{lstlisting}[language=C++]
+#ifndef STRING_BLOCK_HPP_
+#define STRING_BLOCK_HPP_
+
+#include "consts.hpp"
+
+class StringBlock {
+    char block[STRING_BLOCK_SIZE];
+public:
+    StringBlock();
+    bool operator!=(StringBlock const &) const;
+    bool add(char);
+    size_t len() const;
+    char const *data() const;
+    bool have(const char *) const;
+};
+
+#endif // STRING_BLOCK_HPP_
+\end{lstlisting}
+
+
+string.hpp:
+
+\begin{lstlisting}[language=C++]
+#ifndef STRING_HPP_
+#define STRING_HPP_
+
+#include "stringBlock.hpp"
+#include "list.hpp"
+
+typedef List<StringBlock> StringBlocks;
+
+class String : StringBlocks {
+public:
+    String();
+    bool operator==(const char *) const;
+    bool operator==(const String &) const;
+    bool operator!=(const char *) const;
+    size_t length() const;
+    void append(char);
+    StringBlocks::ConstNode view() const;
+    bool isEmpty() const;
+    void reset();
+};
+
+std::ostream &operator<<(std::ostream &, String const &);
+
+#endif // STRING_HPP_
+\end{lstlisting}
+
+
+chars.cpp:
+
+\begin{lstlisting}[language=C++]
+#include <cstddef>
+
+#include "consts.hpp"
+#include "chars.hpp"
+
+bool isDigit(char x)
+{
+    return '0' <= x && x <= '9';
+}
+
+bool isAlpha(char x)
+{
+    return x |= 'a'^'A', 'a' <= x && x <= 'z';
+}
+
+bool isSpace(char x)
+{
+    for (const char *s = SPACE_SYMBOLS; *s; ++s)
+        if (x == *s) return true;
+    return false;
+}
+\end{lstlisting}
+
+
+consts.cpp:
+
+\begin{lstlisting}[language=C++]
+#include <cstddef>
+#include "consts.hpp"
+
+const char *SECTION_KEYWORD = "section";
+const char *SPACE_SYMBOLS = " \t\n\r";
+\end{lstlisting}
+
+
+file.cpp:
+
+\begin{lstlisting}[language=C++]
+#include <cstddef>
+#include <ostream>
+
+#include "consts.hpp"
+#include "string.hpp"
+#include "file.hpp"
+
+Product::Product()
+    : name()
+    , price(PRODUCT_PRICE_UNKNOWN)
+{}
+
+Task *Agent::findTask(Product *p)
+{
+    tasks.reset();
+    for (Task *t = tasks.next(); t; t = tasks.next())
+        if (t->product == p) return t;
+    return NULL;
+}
+
+Denom *File::findOrInsertDenom(size_t value)
+{
+    denoms.reset();
+    for (Denom *d = denoms.next(); d; d = denoms.next())
+        if (d->value == value) return d;
+    Denom *d = denoms.append();
+    d->value = value;
+    return d;
+}
+
+Product *File::findOrInsertProduct(String const &name)
+{
+    products.reset();
+    for (Product *p = products.next(); p; p = products.next())
+        if (p->name == name) return p;
+    Product *p = products.append();
+    p->name = name;
+    return p;
+}
+
+Agent *File::findOrInsertAgent(String const &name)
+{
+    agents.reset();
+    for (Agent *a = agents.next(); a; a = agents.next())
+        if (a->name == name) return a;
+    Agent *a = agents.append();
+    a->name = name;
+    return a;
+}
+
+size_t Agent::sum() const
+{
+    size_t result = 0;
+    List<Task>::ConstNode task = tasks.head();
+    for (; *task; task = task.next()) {
+        result += task->count * task->product->price;
+    }
+    return result;
+}
+\end{lstlisting}
+
+
+fileReader.cpp:
+
+\begin{lstlisting}[language=C++]
+#include <fstream>
+#include <iostream>
+
+#include "chars.hpp"
+#include "string.hpp"
+#include "file.hpp"
+#include "fileReader.hpp"
+
+FileReader::FileReader(const char *path)
+    : m_file()
+    , m_token()
+    , m_tkCol(), m_tkRow()
+    , m_col(), m_row()
+    , m_path(path)
+    , m_errorKind(ERR_NONE)
+{
+    m_file.open(path);
+}
+
+bool FileReader::get(char &x)
+{
+    if (!m_file.get(x)) return false;
+    m_col++;
+    if (x == '\n') m_col = 0, m_row++;
+    return true;
+}
+
+const char *FileReader::tokenKind(TokenKind kind)
+{
+    switch (kind) {
+    case TK_CBRACKET: return "`]`";
+    case TK_OBRACKET: return "`[`";
+    case TK_SECTION: return "`section`";
+    case TK_ID: return "identifier";
+    case TK_NUMBER: return "number";
+    }
+    assert(0 && "unreachable");
+}
+
+FileReader::SectionReader
+FileReader::getSectionReader(String const &readerName)
+{
+    if (readerName == "products") return &FileReader::readProductsSection;
+    if (readerName == "tasks")    return &FileReader::readTasksSection;
+    if (readerName == "finance")  return &FileReader::readFinanceSection;
+
+    return NULL;
+}
+
+bool FileReader::nextToken()
+{
+    char c;
+    m_token.reset();
+
+    enum {
+        SPACES, LINE
+    } skipState = SPACES;
+
+    for (;;) {
+        if (!get(c)) {
+            m_errorKind = ERR_UNEXPECTED_EOF;
+            return false;
+        }
+        switch (skipState) {
+        case SPACES:
+            if (c == '#') skipState = LINE;
+            else if (!isSpace(c)) goto over;
+            break;
+        case LINE:
+            if (c == '\n') skipState = SPACES;
+            break;
+        }
+    } over:
+
+    m_tkCol = m_col;
+    m_tkRow = m_row;
+    m_token.append(c);
+
+    switch (c) {
+    case '[': m_tokenKind = TK_OBRACKET; return true;
+    case ']': m_tokenKind = TK_CBRACKET; return true;
+    }
+    if (isDigit(c)) {
+        m_tokenKind = TK_NUMBER;
+        m_number = c - '0';
+        while (isDigit(m_file.peek()) && get(c)) {
+            m_token.append(c);
+            m_number = m_number*10 + c - '0';
+        }
+        return true;
+    }
+    if (isAlpha(c) || c == '_') {
+        m_tokenKind = TK_ID;
+        for (;;) {
+            c = m_file.peek();
+            if (!(isAlpha(c) || isDigit(c) || c == '_'))
+                break;
+            if (!get(c)) break;
+            m_token.append(c);
+        }
+        if (m_token == SECTION_KEYWORD)
+            m_tokenKind = TK_SECTION;
+        return true;
+    }
+    m_errorKind = ERR_UNKNOWN_TOKEN;
+    return false;
+}
+
+bool FileReader::expectToken(TokenKind kind)
+{
+    if (nextToken()) return checkTokenKind(kind);
+    m_expectedKind = kind;
+    return false;
+}
+
+bool FileReader::checkTokenKind(TokenKind kind)
+{
+    m_expectedKind = kind;
+    if (m_errorKind == ERR_UNEXPECTED_EOF) return false;
+    if (kind == m_tokenKind) return true;
+    m_errorKind = ERR_UNEXPECTED_TOKEN;
+    return false;
+}
+
+bool FileReader::readFile(File &dest)
+{
+    if (!expectToken(TK_SECTION)) return false;
+    for (;;) {
+        if (!expectToken(TK_ID)) return false;
+        SectionReader reader = getSectionReader(m_token);
+        if (!reader) {
+            m_errorKind = ERR_UNKNOWN_SECTION;
+            return false;
+        }
+        if (!(this->*reader)(dest)) return false;
+        if (m_errorKind == ERR_UNEXPECTED_EOF) break;
+        if (!checkTokenKind(TK_SECTION)) return false;
+    }
+    if (!validate(dest)) return false;
+    return true;
+}
+
+bool FileReader::validate(File &file)
+{
+    List<Agent>::ConstNode agent = file.agents.head();
+    for (; *agent; agent = agent.next()) {
+        List<Task>::ConstNode task = agent->tasks.head();
+        for (; *task; task = task.next()) {
+            if (task->product->price != PRODUCT_PRICE_UNKNOWN)
+                continue;
+            m_token = task->product->name;
+            m_tkRow = task->row;
+            m_tkCol = task->col;
+            m_errorKind = ERR_FILE_UNKNOWN_PRODUCT;
+            return false;
+        }
+    }
+    return true;
+}
+
+void FileReader::reportError() const
+{
+    if (m_errorKind == ERR_NONE) return;
+    std::cerr << m_path << ":" << m_tkRow + 1 << ":" << m_tkCol
+              << ": error: ";
+    switch (m_errorKind) {
+    case ERR_FILE_UNKNOWN_PRODUCT:
+        std::cerr << "unknown product: `"
+                  << m_token << "`" << std::endl;
+        break;
+    case ERR_DUPLICATION_TASK:
+        std::cerr << "task duplication: `"
+                  << m_token << "`" << std::endl;
+        break;
+    case ERR_DUPLICATION_PRODUCT:
+        std::cerr << "product duplication: `"
+                  << m_token << "`" << std::endl;
+        break;
+    case ERR_UNKNOWN_SECTION:
+        std::cerr << "unknown section: `"
+                  << m_token << "`" << std::endl;
+        break;
+    case ERR_UNEXPECTED_EOF:
+        std::cerr << "unexpected end of file, expected "
+                  << "token of kind "
+                  << tokenKind(m_expectedKind) << std::endl;
+        break;
+    case ERR_UNEXPECTED_TOKEN:
+        std::cerr << "unexpected token `" << m_token
+                  << "` of kind " << tokenKind(m_tokenKind)
+                  << " when expected kind is "
+                  << tokenKind(m_expectedKind) << std::endl;
+        break;
+    case ERR_UNKNOWN_TOKEN:
+        std::cerr << "unknown token: `"
+                  << m_token << "`" << std::endl;
+        break;
+    case ERR_NONE: assert(0 && "unreachable");
+    }
+}
+
+bool FileReader::readProductsSection(File &file)
+{
+    while (nextToken()) {
+        Product *product;
+        if (m_token == SECTION_KEYWORD) break;
+        if (!checkTokenKind(TK_ID)) return false;
+        product = file.findOrInsertProduct(m_token);
+        if (product->price != PRODUCT_PRICE_UNKNOWN) {
+            m_errorKind = ERR_DUPLICATION_PRODUCT;
+            return false;
+        }
+        if (!expectToken(TK_NUMBER)) return false;
+        product->price = m_number;
+    }
+    return true;
+}
+
+bool FileReader::readTasksSection(File &file)
+{
+    while (nextToken()) {
+        Agent *agent;
+        if (m_token == SECTION_KEYWORD) break;
+        if (!checkTokenKind(TK_ID)) return false;
+        agent = file.findOrInsertAgent(m_token);
+
+        if (!expectToken(TK_OBRACKET)) return false;
+
+        for (;;) {
+            nextToken();
+            Task task;
+            task.row = m_tkRow;
+            task.col = m_tkCol;
+            if (m_tokenKind == TK_CBRACKET) break;
+            if (!checkTokenKind(TK_ID)) return false;
+            task.product = file.findOrInsertProduct(m_token);
+            if (agent->findTask(task.product)) {
+                m_errorKind = ERR_DUPLICATION_TASK;
+                return false;
+            }
+            if (!expectToken(TK_NUMBER)) return false;
+            task.count = m_number;
+            *agent->tasks.append() = task;
+        }
+    }
+    return true;
+}
+
+bool FileReader::readFinanceSection(File &file)
+{
+    while (nextToken()) {
+        if (m_token == SECTION_KEYWORD) break;
+        if (!checkTokenKind(TK_NUMBER)) return false;
+        size_t value = m_number;
+        if (!expectToken(TK_NUMBER)) return false;
+        file.findOrInsertDenom(value)->count += m_number;
+    }
+    return true;
+}
+\end{lstlisting}
+
+
+main.cpp:
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <fstream>
+
+#include "string.hpp"
+#include "file.hpp"
+#include "fileReader.hpp"
+#include "solution.hpp"
+
+int main(int argc, const char *argv[])
+{
+    const char *filename = "input.txt";
+    const char *protocolPath = "protocol.txt";
+
+    if (argc > 1)
+        filename = argv[1];
+    if (argc > 2)
+        protocolPath = argv[2];
+
+    FileReader reader(filename);
+
+    std::ofstream protocol(protocolPath);
+    if (!protocol.is_open()) {
+        std::cerr << "ERROR: could not open file: " << protocolPath;
+        return 1;
+    }
+
+    File file;
+    if (!reader.readFile(file)) {
+        reader.reportError();
+        return 1;
+    }
+
+    Solution solution(file);
+    if (!solution) {
+        std::cerr << "ERROR: impossible to distribute" << std::endl;
+        return 1;
+    }
+
+    solution.write(std::cout);
+    solution.writeProtocol(protocol);
+    return 0;
+}
+\end{lstlisting}
+
+
+solution.cpp:
+
+\begin{lstlisting}[language=C++]
+#include <new>
+#include <cstddef>
+#include <ostream>
+
+#include "list.hpp"
+#include "string.hpp"
+#include "file.hpp"
+#include "solution.hpp"
+
+Solution::Branches
+Solution::generatePayouts(long amount, Stock stock)
+{
+    Branches branches;
+    if (amount <= 0) {
+        branches.append()->stock.transfer_from(stock);
+        return branches;
+    }
+    if (!stock.hasNext()) return branches;
+    if ((long) stock.avail() < amount) return branches;
+    Denom head = stock.popLeft();
+    size_t d = head.value;
+    size_t q = head.count;
+    size_t maxUse = std::min(q, (amount + d - 1) / d);
+    for (size_t k = 0; k <= maxUse; ++k) {
+        Branches sub = generatePayouts(amount - k * d, stock);
+
+        while (sub.hasNext()) {
+            Branch *subBranch = sub.next();
+            Branch *b = branches.append();
+            b->payout.transfer_from(subBranch->payout);
+            if (k > 0) {
+                Denom *n = b->payout.pushLeft();
+                n->value = d;
+                n->count = k;
+            }
+
+            Stock &remaining = subBranch->stock;
+            if (k < q) {
+                Denom rem = {d, q - k};
+                remaining.pushLeft(rem);
+            }
+
+            b->stock.transfer_from(subBranch->stock);
+        }
+    }
+    return branches;
+}
+
+size_t Solution::count(Payout const &payout)
+{
+    size_t count = 0;
+    for (Payout::ConstNode node = payout.head();
+         *node; node = node.next())
+        count += node->count;
+    return count;
+}
+
+size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
+{
+    int skipNodes = 0;
+    if (!*agents) return 0;
+    size_t amount = **agents;
+    AgentNode restAgents = agents.next();
+    Branches branches = generatePayouts(amount, stock);
+    size_t minCount = ~0;
+
+    List<Payout> bestRestResult;
+    Payout bestPayout;
+
+    while (branches.hasNext()) {
+        List<Payout> restResult;
+        Branch *branch = branches.next();
+        size_t subResult = solve(branch->stock, restAgents, restResult);
+        while (subResult == ~0UL) {
+            restAgents = restAgents.next();
+            subResult = solve(branch->stock, restAgents, restResult);
+            restResult.pushLeft();
+        }
+
+        size_t used = count(branch->payout) + subResult;
+        if (used < minCount) {
+            minCount = used;
+            bestPayout.transfer_from(branch->payout);
+            bestRestResult.transfer_from(restResult);
+        }
+    }
+    if (minCount != ~0UL) {
+        result.transfer_from(bestRestResult);
+        result.pushLeft()->transfer_from(bestPayout);
+    }
+    while (skipNodes--) result.pushLeft();
+    return minCount;
+}
+
+Solution::Solution(File const &file)
+    : solution()
+    , remainder(file.denoms)
+    , file(file)
+{
+    Agents agents;
+    Stock stock = file.denoms;
+    stock.reset();
+
+    for (List<Agent>::ConstNode agent = file.agents.head();
+         *agent; agent = agent.next())
+        *agents.append() = agent->sum();
+
+    List<Payout> result;
+    if (solve(stock, agents.head(), result) != ~0UL)
+        solution.transfer_from(result);
+
+    List<Payout>::ConstNode fp = solution.head();
+    for (; *fp; fp = fp.next()) {
+        Payout::ConstNode d = fp->head();
+        for (; *d; d = d.next()) find(d->value).count -= d->count;
+    }
+}
+
+Solution::Stock::Stock()
+    : List()
+    , totalAvailable()
+{}
+
+Solution::Stock::Stock(List<Denom> const &other)
+    : List()
+    , totalAvailable()
+{
+    for (List<Denom>::ConstNode node = other.head();
+         *node; node = node.next()) {
+        totalAvailable += node->count * node->value;
+        *List::append() = **node;
+    }
+}
+
+Denom Solution::Stock::popLeft()
+{
+    Denom d = List::popLeft();
+    totalAvailable -= d.value * d.count;
+    return d;
+}
+
+void Solution::Stock::pushLeft(Denom d)
+{
+    *List::pushLeft() = d;
+    totalAvailable += d.value * d.count;
+}
+
+size_t Solution::Stock::avail() const
+{
+    return totalAvailable;
+}
+
+void Solution::Stock::transfer_from(Stock &other)
+{
+    totalAvailable = other.totalAvailable;
+    List::transfer_from(other);
+}
+
+Denom &Solution::find(size_t value)
+{
+    remainder.reset();
+    for (Denom *d = remainder.next(); d; d = remainder.next())
+        if (d->value == value) return *d;
+    assert(0);
+}
+
+void Solution::write(std::ostream &strm)
+{
+    List<Agent>::ConstNode agent = file.agents.head();
+    size_t total = 0;
+    for (List<Payout>::ConstNode payout = solution.head(); *payout;
+         payout = payout.next(), agent = agent.next()) {
+        assert(*agent);
+        strm << agent->name << " (sum " << agent->sum()
+             << "):" << std::endl;
+        for (Solution::Payout::ConstNode denom = payout->head();
+             *denom; denom = denom.next()) {
+            strm << "    " << denom->value << ": "
+                 << denom->count << std::endl;
+            total += denom->count;
+        }
+    }
+    strm << "Total: " << total << std::endl;
+}
+
+void Solution::writeProtocol(std::ostream &strm)
+{
+    strm << "Denom remainder:" << std::endl;
+    List<Denom>::ConstNode left = remainder.head();
+    for (; *left; left = left.next()) {
+        strm << "   " << left->value
+             << ": " << left->count << std::endl;
+    }
+}
+
+bool Solution::operator!() const
+{
+    return !solution.hasNext();
+}
+\end{lstlisting}
+
+
+stringBlock.cpp:
+
+\begin{lstlisting}[language=C++]
+#include <cstddef>
+
+#include "stringBlock.hpp"
+
+StringBlock::StringBlock()
+    : block()
+{}
+
+bool StringBlock::add(char x)
+{
+    size_t len = this->len();
+    if (len == STRING_BLOCK_SIZE) return false;
+    block[len] = x;
+    return true;
+}
+
+size_t StringBlock::len() const
+{
+    size_t i;
+    for (i = 0; i < STRING_BLOCK_SIZE; ++i)
+        if (!block[i]) break;
+    return i;
+}
+
+char const *StringBlock::data() const
+{
+    return block;
+}
+
+bool StringBlock::have(const char *c) const
+{
+    const char *b = block;
+    const char *e = block + STRING_BLOCK_SIZE;
+    while (*c && b != e)
+        if (*b++ != *c++) return false;
+    return true;
+}
+
+bool StringBlock::operator!=(StringBlock const &other) const
+{
+    for (size_t i = 0; i < STRING_BLOCK_SIZE; ++i)
+        if (block[i] != other.block[i]) return true;
+    return false;
+}
+\end{lstlisting}
+
+
+string.cpp:
+
+\begin{lstlisting}[language=C++]
+#include <cstddef>
+#include <cassert>
+#include <inttypes.h>
+#include <ostream>
+
+#include "string.hpp"
+
+String::String()
+    : StringBlocks()
+{}
+
+StringBlocks::ConstNode String::view() const
+{
+    return head();
+}
+
+std::ostream &operator<<(std::ostream &sink, String const &str)
+{
+    StringBlocks::ConstNode node = str.view();
+    for (; *node; node = node.next()) {
+        StringBlock const *block = *node;
+        sink.write(block->data(), block->len());
+        if (*node.next()) sink << " -> ";
+    }
+    return sink;
+}
+
+size_t String::length() const
+{
+    size_t len;
+    StringBlocks::ConstNode node = head();
+    if (!*node) return 0;
+    for (len = 0; *node.next(); node = node.next())
+        len += STRING_BLOCK_SIZE;
+    return len + node->len();
+}
+
+void String::append(char x)
+{
+    StringBlock *tail = List::tail();
+    if (!tail || !tail->add(x))
+        List::append()->add(x);
+}
+
+bool String::isEmpty() const
+{
+    return !hasNext();
+}
+
+void String::reset()
+{
+    List::~List();
+    new (this) List;
+}
+
+bool String::operator!=(const char *cstr) const
+{
+    return !(*this == cstr);
+}
+
+bool String::operator==(const char *cstr) const
+{
+    StringBlocks::ConstNode node = head();
+    for (; *node; cstr += node->len(), node = node.next())
+        if (!node->have(cstr)) return false;
+    return !*cstr;
+}
+
+bool String::operator==(const String &other) const
+{
+    StringBlocks::ConstNode a = head();
+    StringBlocks::ConstNode b = other.head();
+    for (; *a && *b; a = a.next(), b = b.next())
+        if (**a != **b) return false;
+
+    return !*a && !*b;
+}
+\end{lstlisting}
+
+\end{document}
