@@ -17,3 +17,11 @@ main: $(OBJS)
 .PHONY: tests
 tests: main
 	$(MAKE) -C tests
+
+.PHONY:
+pdf: note.pdf
+
+note.pdf: note.tex
+	pdflatex note.tex
+
+everything: main tests pdf
