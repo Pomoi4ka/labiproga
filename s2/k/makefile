@@ -27,7 +27,7 @@ note.pdf: note.tex tests.tex program.tex
 
 everything: main tests pdf
 
-program.tex: $(SOURCES)
+program.tex: $(SOURCES) includes.png
 	for file in *.hpp *cpp; do \
 		echo -e "\n$$file:\n\n\\\begin{lstlisting}[language=C++]"; \
 		cat $$file; \
@@ -36,3 +36,11 @@ program.tex: $(SOURCES)
 
 tests.tex: tests
 	$(MAKE) -C tests ../tests.tex
+
+includes.png: includes.dot
+	dot -Tpng $< >$@
+
+includes.dot:
+	(echo "digraph {"; \
+	grep -rn "#include \"" *.hpp *.cpp | sed 's/:.:#include /" -> /; s/^/"/'; \
+	echo "}") > $@

@@ -30,14 +30,14 @@
 \definecolor{identifier}{rgb}{0,0,0}
 
 \lstdefinestyle{coolprint}{
-  basicstyle   = \ttfamily\small,
+  basicstyle   = \ttfamily\scriptsize,
   keywordstyle = \bfseries\color{keyword},
   commentstyle = \itshape\color{comment},
   stringstyle  = \color{string},
   identifierstyle = \color{identifier},
   backgroundcolor = \color{codebg},
   numbers      = left,
-  numberstyle  = \small\color{number},
+  numberstyle  = \scriptsize\color{number},
   numbersep    = 5pt,
   frame        = single,
   framerule    = 0.8pt,
@@ -63,7 +63,6 @@
 \titleformat{\subsection}{\normalfont\bfseries}{\thesubsection}{1em}{}
 \renewcommand{\cftsecfont}{\normalfont}
 \renewcommand{\cftsecpagefont}{\normalfont}
-
 
 \renewcommand{\baselinestretch}{1.5}
 \captionsetup[figure]{name={Рис.},labelsep=endash}
@@ -453,14 +452,21 @@ section finance \\
 
 \section{Оформление описания алгоритма в виде блок-схемы}
 
+\section{Графовое представление иерархии исходных файлов}
+
+\includegraphics[width=\textwidth]{includes.png}
 
 \section{Текст программы}
 
-\include{program}
+\input{program}
 
 \section{Тестовые примеры}
 
-\include{tests}
+\scriptsize
+
+\input{tests}
+
+\normalsize
 
 \section{Выводы}
 
