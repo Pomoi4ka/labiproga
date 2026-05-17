@@ -7,6 +7,35 @@
 #include "file.hpp"
 #include "solution.hpp"
 
+struct Solution::Stock : List<Denom> {
+    Stock();
+    Stock(List<Denom> const &);
+    Denom popLeft();
+    void transfer_from(Stock &other);
+
+    // different api, but to be able to
+    // track it has to be like that
+    void pushLeft(Denom);
+    size_t avail() const;
+private:
+    size_t totalAvailable;
+};
+
+struct Solution::Branch {
+    Payout payout;
+    Stock stock;
+};
+
+struct Solution::SolveResult {
+    size_t used;
+    size_t distributed;
+
+    inline SolveResult operator+(size_t used) const;
+    inline bool operator<(SolveResult const &other) const;
+    inline SolveResult();
+    inline SolveResult(size_t);
+};
+
 Solution::Branches
 Solution::generatePayouts(long amount, Stock stock)
 {
@@ -55,14 +84,39 @@ size_t Solution::count(Payout const &payout)
     return count;
 }
 
-size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
+inline bool Solution::SolveResult::operator<(SolveResult const &other) const
+{
+    bool distMore = distributed >= other.distributed;
+    bool usedLess = used < other.used;
+    return distMore && usedLess;
+}
+
+inline Solution::SolveResult Solution::SolveResult::operator+(size_t used) const
+{
+    SolveResult result;
+    result.used = this->used + used;
+    result.distributed = this->distributed;
+    return result;
+}
+
+inline Solution::SolveResult::SolveResult(size_t used)
+    : used(used)
+    , distributed()
+{}
+
+inline Solution::SolveResult::SolveResult()
+    : used(~0)
+    , distributed()
+{}
+
+Solution::SolveResult Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
 {
     int skipNodes = 0;
     if (!*agents) return 0;
     size_t amount = **agents;
     AgentNode restAgents = agents.next();
     Branches branches = generatePayouts(amount, stock);
-    size_t minCount = ~0;
+    SolveResult minCount;
 
     List<Payout> bestRestResult;
     Payout bestPayout;
@@ -70,21 +124,22 @@ size_t Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
     while (branches.hasNext()) {
         List<Payout> restResult;
         Branch *branch = branches.next();
-        size_t subResult = solve(branch->stock, restAgents, restResult);
-        while (subResult == ~0UL) {
+        SolveResult subResult = solve(branch->stock, restAgents, restResult);
+        while (subResult.used == ~0UL) {
             restAgents = restAgents.next();
             subResult = solve(branch->stock, restAgents, restResult);
             restResult.pushLeft();
         }
 
-        size_t used = count(branch->payout) + subResult;
+        SolveResult used = subResult + count(branch->payout);
+        used.distributed += 1;
         if (used < minCount) {
             minCount = used;
             bestPayout.transfer_from(branch->payout);
             bestRestResult.transfer_from(restResult);
         }
     }
-    if (minCount != ~0UL) {
+    if (minCount.used != ~0UL) {
         result.transfer_from(bestRestResult);
         result.pushLeft()->transfer_from(bestPayout);
     }
@@ -106,7 +161,7 @@ Solution::Solution(File const &file)
         *agents.append() = agent->sum();
 
     List<Payout> result;
-    if (solve(stock, agents.head(), result) != ~0UL)
+    if (solve(stock, agents.head(), result).used != ~0UL)
         solution.transfer_from(result);
 
     List<Payout>::ConstNode fp = solution.head();
