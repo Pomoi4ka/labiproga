@@ -21,13 +21,13 @@ tests: main
 .PHONY:
 pdf: note.pdf
 
-note.pdf: note.tex
+note.pdf: note.tex tests.tex program.tex
 	pdflatex note.tex
 
 everything: main tests pdf
 
-sourceClip:
-	echo *.hpp *.cpp | xargs -Ixx sh -c "echo -e '\n\nxx:\n\\\begin{lstlisting}[language=C++]'; cat xx; echo '\\end{lstlisting}'"  | xclip -selection clipboard
+program.tex:
+	echo *.hpp *.cpp | xargs -Ixx sh -c "echo -e '\n\nxx:\n\\\begin{lstlisting}[language=C++]'; cat xx; echo '\\end{lstlisting}'"  > program.tex
 
-testsClip:
-	$(MAKE) -C tests clip
+tests.tex:
+	$(MAKE) -C tests ../tests.tex
