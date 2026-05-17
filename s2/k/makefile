@@ -40,7 +40,7 @@ tests.tex: tests
 includes.png: includes.dot
 	dot -Tpng $< >$@
 
-includes.dot:
+includes.dot: $(SOURCES)
 	(echo "digraph {"; \
 	grep -rn "#include \"" *.hpp *.cpp | sed 's/:.:#include /" -> /; s/^/"/'; \
 	echo "}") > $@
