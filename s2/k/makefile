@@ -23,6 +23,7 @@ pdf: note.pdf
 
 note.pdf: note.tex tests.tex program.tex
 	pdflatex note.tex
+	pdflatex note.tex # don't look at me like that. it's latex
 
 everything: main tests pdf
 
