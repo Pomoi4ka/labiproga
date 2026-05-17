@@ -26,8 +26,8 @@ note.pdf: note.tex tests.tex program.tex
 
 everything: main tests pdf
 
-program.tex:
+program.tex: $(SOURCES)
 	echo *.hpp *.cpp | xargs -Ixx sh -c "echo -e '\n\nxx:\n\\\begin{lstlisting}[language=C++]'; cat xx; echo '\\end{lstlisting}'"  > program.tex
 
-tests.tex:
+tests.tex: tests
 	$(MAKE) -C tests ../tests.tex
