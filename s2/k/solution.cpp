@@ -32,6 +32,8 @@ struct Solution::SolveResult {
 
     inline SolveResult operator+(size_t used) const;
     inline bool operator<(SolveResult const &other) const;
+    inline operator bool() const;
+    inline bool operator!() const;
     inline SolveResult();
     inline SolveResult(size_t);
 };
@@ -84,6 +86,16 @@ size_t Solution::count(Payout const &payout)
     return count;
 }
 
+inline Solution::SolveResult::operator bool() const
+{
+    return used != ~0UL;
+}
+
+inline bool Solution::SolveResult::operator!() const
+{
+    return !this->operator bool();
+}
+
 inline bool Solution::SolveResult::operator<(SolveResult const &other) const
 {
     bool distMore = distributed >= other.distributed;
@@ -111,7 +123,6 @@ inline Solution::SolveResult::SolveResult()
 
 Solution::SolveResult Solution::solve(Stock &stock, AgentNode agents, List<Payout> &result)
 {
-    int skipNodes = 0;
     if (!*agents) return 0;
     size_t amount = **agents;
     AgentNode restAgents = agents.next();
@@ -125,11 +136,13 @@ Solution::SolveResult Solution::solve(Stock &stock, AgentNode agents, List<Payou
         List<Payout> restResult;
         Branch *branch = branches.next();
         SolveResult subResult = solve(branch->stock, restAgents, restResult);
-        while (subResult.used == ~0UL) {
-            restAgents = restAgents.next();
-            subResult = solve(branch->stock, restAgents, restResult);
-            restResult.pushLeft();
+        int skip;
+        AgentNode agents = restAgents;
+        for (skip = 0; !subResult; ++skip) {
+            agents = agents.next();
+            subResult = solve(branch->stock, agents, restResult);
         }
+        while (skip--) restResult.pushLeft();
 
         SolveResult used = subResult + count(branch->payout);
         used.distributed += 1;
@@ -139,11 +152,10 @@ Solution::SolveResult Solution::solve(Stock &stock, AgentNode agents, List<Payou
             bestRestResult.transfer_from(restResult);
         }
     }
-    if (minCount.used != ~0UL) {
+    if (minCount) {
         result.transfer_from(bestRestResult);
         result.pushLeft()->transfer_from(bestPayout);
     }
-    while (skipNodes--) result.pushLeft();
     return minCount;
 }
 
@@ -161,7 +173,7 @@ Solution::Solution(File const &file)
         *agents.append() = agent->sum();
 
     List<Payout> result;
-    if (solve(stock, agents.head(), result).used != ~0UL)
+    if (solve(stock, agents.head(), result))
         solution.transfer_from(result);
 
     List<Payout>::ConstNode fp = solution.head();
