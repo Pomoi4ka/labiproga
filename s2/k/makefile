@@ -21,13 +21,13 @@ tests: main
 .PHONY:
 pdf: note.pdf
 
-note.pdf: note.tex tests.tex program.tex
+note.pdf: note.tex tests.tex program.tex includes.png
 	pdflatex note.tex
 	pdflatex note.tex # don't look at me like that. it's latex
 
 everything: main tests pdf
 
-program.tex: $(SOURCES) includes.png
+program.tex: $(SOURCES)
 	for file in *.hpp *cpp; do \
 		echo -e "\n$$file:\n\n\\\begin{lstlisting}[language=C++]"; \
 		cat $$file; \
