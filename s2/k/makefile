@@ -25,3 +25,9 @@ note.pdf: note.tex
 	pdflatex note.tex
 
 everything: main tests pdf
+
+sourceClip:
+	echo *.hpp *.cpp | xargs -Ixx sh -c "echo -e '\n\nxx:\n\\\begin{lstlisting}[language=C++]'; cat xx; echo '\\end{lstlisting}'"  | xclip -selection clipboard
+
+testsClip:
+	$(MAKE) -C tests clip
