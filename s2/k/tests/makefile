@@ -9,13 +9,13 @@ all: $(TESTS:.txt=.out)
 
 ../tests.tex: all
 	for test in $(TESTS); do \
-		echo -e "\\\rule{15cm}{0.5mm}\n\nВходной файл:\n\n\\\begin{verbatim}"; \
+		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nВходной файл:\n\n\\\begin{spverbatim}"; \
 		cat $$test; \
-		echo "\\end{verbatim}"; \
-		echo -e "\\\rule{15cm}{0.5mm}\n\nВывод:\n\n\\\begin{verbatim}"; \
+		echo "\\end{spverbatim}"; \
+		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nВывод:\n\n\\\begin{spverbatim}"; \
 		cat $${test/txt/out}; \
-		echo "\\end{verbatim}"; \
-		echo -e "\\\rule{15cm}{0.5mm}\n\nПротокол:\n\n\\\begin{verbatim}"; \
+		echo "\\end{spverbatim}"; \
+		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nПротокол:\n\n\\\begin{spverbatim}"; \
 		cat $${test/txt/prot}; \
-		echo "\\end{verbatim}"; \
+		echo "\\end{spverbatim}"; \
 	done > $@

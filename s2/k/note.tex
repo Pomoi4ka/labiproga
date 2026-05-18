@@ -18,7 +18,8 @@
 \usepackage{titlesec}
 \usepackage{multirow}
 \usepackage{tabularray}
-
+\usepackage{multicol}
+\usepackage{spverbatim}
 \usepackage{listings}
 \usepackage{xcolor}
 
@@ -207,7 +208,7 @@ $(p_1, p_2, \dots, p_n)$, где $p_i = (\hat{d}_1, \hat{d}_2, \dots, \hat{d}_{N
 
 \subsection{Связь выходных данных с исходными данными}
 \begin{align*}
-  \mathbb{P}_i &= (\bar{\mathbb{N}} \times \mathbb{N})^{N(i)} \hspace{1em}\text{ - можество выплат для $i$ агента}\\
+  \mathbb{P}_i &= (\bar{\mathbb{N}} \times \mathbb{N})^{N(i)} \hspace{1em}\text{ - множество выплат для $i$ агента}\\
   \mathbb{S} &= \bar{\mathbb{N}} \times \bar{\mathbb{N}} \hspace{1em}\text{ - множество для запаса купюр одного номинала}\\
   P&: \bar{\mathbb{N}}^{n} \times \mathbb{S}^{m} \rightarrow \mathbb{P}_1 \times \mathbb{P}_2 \times \dots \times \mathbb{P}_{n} \\
   P&((a_1, a_2, \dots, a_n), s) = (P'(1), \dots, P'(n)), \\
@@ -432,15 +433,21 @@ section finance \\
 
 \section{Текст программы}
 
+\renewcommand{\baselinestretch}{1}
 \input{program}
+\renewcommand{\baselinestretch}{1.5}
 
 \section{Тестовые примеры}
 
-\scriptsize
-
-\input{tests}
-
-\normalsize
+{ \parindent0pt
+  \renewcommand{\baselinestretch}{1}
+  \scriptsize
+  \begin{multicols}{3}
+    \input{tests}
+  \end{multicols}
+  \normalsize
+  \renewcommand{\baselinestretch}{1.5}
+}
 
 \section{Выводы}
 
