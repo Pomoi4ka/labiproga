@@ -20,7 +20,6 @@ std::ostream &operator<<(std::ostream &sink, String const &str)
     for (; *node; node = node.next()) {
         StringBlock const *block = *node;
         sink.write(block->data(), block->len());
-        if (*node.next()) sink << " -> ";
     }
     return sink;
 }
@@ -74,4 +73,9 @@ bool String::operator==(const String &other) const
         if (**a != **b) return false;
 
     return !*a && !*b;
+}
+
+void String::transfer_from(String &other)
+{
+    this->List::transfer_from(other);
 }

@@ -38,6 +38,54 @@ struct Solution::SolveResult {
     inline SolveResult(size_t);
 };
 
+inline Solution& Solution::operator<<(const char *cstr)
+{
+    String &s = protLines.lastOrEnqueueDefault();
+    while (*cstr) s.append(*cstr++);
+    return *this;
+}
+
+inline Solution& Solution::operator<<(size_t number)
+{
+    char buf[32];
+    int len = 0;
+
+    String &s = protLines.lastOrEnqueueDefault();
+    while (number) buf[len++] = number%10 + '0', number /= 10;
+    while (len) s.append(buf[--len]);
+    return *this;
+}
+
+inline Solution& Solution::operator<<(Payout const &payout)
+{
+    *this << "[";
+    for (Payout::ConstNode node = payout.head();
+         *node; node = node.next()) {
+        *this << "<" << node->value
+              << ": " << node->count
+              << ">";
+        if (*node.next())
+            *this << ", ";
+    }
+    return *this << "]";
+}
+
+inline Solution& Solution::operator<<(Branch const &branch)
+{
+    return *this << "{ payout = " << branch.payout
+                 << ", stock = " << branch.stock
+                 << " }";
+}
+
+inline Solution& Solution::operator<<(std::ostream &(&op)(std::ostream&))
+{
+    assert(&op == &(std::ostream &(&)(std::ostream&))std::endl);
+
+    String s;
+    protLines.enqueue(s);
+    return *this;
+}
+
 Solution::Branches
 Solution::generatePayouts(long amount, Stock stock)
 {
@@ -135,11 +183,20 @@ Solution::SolveResult Solution::solve(Stock &stock, AgentNode agents, List<Payou
     while (branches.hasNext()) {
         List<Payout> restResult;
         Branch *branch = branches.next();
+        *this << "[" << amount << "] "
+              << "Probing branch: " << *branch << std::endl;
         SolveResult subResult = solve(branch->stock, restAgents, restResult);
         int skip;
         AgentNode agents = restAgents;
         for (skip = 0; !subResult; ++skip) {
+            *this << "[" << amount << "] "
+                  << "Branch failed to distribute for agent sum "
+                  << **agents << std::endl;
             agents = agents.next();
+            if (*agents)
+                *this << "[" << amount << "] "
+                      << "Skipping to next agent sum "
+                      << **agents << std::endl;
             subResult = solve(branch->stock, agents, restResult);
         }
         while (skip--) restResult.pushLeft();
@@ -147,6 +204,9 @@ Solution::SolveResult Solution::solve(Stock &stock, AgentNode agents, List<Payou
         SolveResult used = subResult + count(branch->payout);
         used.distributed += 1;
         if (used < minCount) {
+            *this << "[" << amount << "] "
+                  << "Found new optimal payout "
+                  << branch->payout << std::endl;
             minCount = used;
             bestPayout.transfer_from(branch->payout);
             bestRestResult.transfer_from(restResult);
@@ -248,19 +308,26 @@ void Solution::write(std::ostream &strm)
         }
     }
     strm << "Total: " << total << std::endl;
-}
 
-void Solution::writeProtocol(std::ostream &strm)
-{
-    strm << "Denom remainder:" << std::endl;
+    *this << "Denom remainder:" << std::endl;
     List<Denom>::ConstNode left = remainder.head();
     for (; *left; left = left.next()) {
-        strm << "   " << left->value
-             << ": " << left->count << std::endl;
+        *this << "   " << left->value
+              << ": " << left->count << std::endl;
     }
 }
 
 bool Solution::operator!() const
 {
     return !solution.hasNext();
+}
+
+void Solution::writeProtocol(std::ostream &sink)
+{
+    String s;
+    protLines.dequeue(s);
+    while (!s.isEmpty()) {
+        sink << s << std::endl;
+        protLines.dequeue(s);
+    }
 }

@@ -8,6 +8,8 @@ typedef List<StringBlock> StringBlocks;
 
 class String : StringBlocks {
 public:
+    void transfer_from(String &);
+
     String();
     bool operator==(const char *) const;
     bool operator==(const String &) const;
