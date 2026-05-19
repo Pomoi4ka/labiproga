@@ -21,8 +21,10 @@ Queue<T, limit>::Queue()
 template <typename T, size_t limit>
 void Queue<T, limit>::enqueue(T &a)
 {
-    if (length == limit) List<T>::popLeft();
-    else length += 1;
+    if (length == limit) {
+        T ignore;
+        List<T>::popLeft(ignore);
+    } else length += 1;
     List<T>::append()->transfer_from(a);
 }
 
@@ -31,10 +33,7 @@ void Queue<T, limit>::dequeue(T &a)
 {
     if (!length) return;
     length -= 1;
-
-    List<T>::reset();
-    a.transfer_from(*List<T>::next());
-    List<T>::popLeft();
+    List<T>::popLeft(a);
 }
 
 template <typename T, size_t limit>

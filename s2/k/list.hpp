@@ -26,6 +26,7 @@ public:
     T *tail();
     T *pushLeft();
     T popLeft();
+    void popLeft(T &);
     void transfer_from(List &other);
 
     List &operator=(List const&);
@@ -171,6 +172,19 @@ List<T> &List<T>::operator=(List<T> const &other)
 {
     this->~List();
     return *new (this) List(other);
+}
+
+template <typename T>
+void List<T>::popLeft(T &result)
+{
+    Node *head = m_head;
+    if (m_curr == head) next();
+    if (m_prev == head) m_prev = NULL;
+    if (m_head == m_tail)
+        m_tail = m_head->next;
+    m_head = m_head->next;
+    result.transfer_from(head->item);
+    delete head;
 }
 
 template <typename T>
