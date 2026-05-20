@@ -11,6 +11,9 @@ SOURCES = \
 
 OBJS = $(SOURCES:.cpp=.o)
 
+ASSETS = assets
+export ASSETS
+
 main: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
 
@@ -21,26 +24,26 @@ tests: main
 .PHONY:
 pdf: note.pdf
 
-note.pdf: note.tex tests.tex program.tex includes.png
+note.pdf: note.tex $(ASSETS)/tests.tex $(ASSETS)/program.tex $(ASSETS)/includes.png
 	pdflatex note.tex
 	pdflatex note.tex # don't look at me like that. it's latex
 
 everything: main tests pdf
 
-program.tex: $(SOURCES)
+$(ASSETS)/program.tex: $(SOURCES)
 	for file in *.hpp *cpp; do \
 		echo -e "\n$$file:\n\n\\\begin{lstlisting}[language=C++]"; \
 		cat $$file; \
 		echo '\end{lstlisting}'; \
-	done > program.tex
+	done > $@
 
-tests.tex: tests
-	$(MAKE) -C tests ../tests.tex
+$(ASSETS)/tests.tex: tests
+	$(MAKE) -C tests ../$@
 
-includes.png: includes.dot
+$(ASSETS)/includes.png: $(ASSETS)/includes.dot
 	dot -Tpng $< >$@
 
-includes.dot: $(SOURCES)
+$(ASSETS)/includes.dot: $(SOURCES)
 	(echo "digraph {"; \
 	grep -rn "#include \"" *.hpp *.cpp | sed 's/:.:#include /" -> /; s/^/"/'; \
 	echo "}") > $@

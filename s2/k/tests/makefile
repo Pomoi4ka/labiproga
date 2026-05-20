@@ -7,7 +7,7 @@ all: $(TESTS:.txt=.out)
 .txt.out:
 	../main $< $(<:.txt=.prot) 2>$@ 1>$@ || :
 
-../tests.tex: all
+../$(ASSETS)/tests.tex: all
 	for test in $(TESTS); do \
 		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nВходной файл:\n\n\\\begin{spverbatim}"; \
 		cat $$test; \
