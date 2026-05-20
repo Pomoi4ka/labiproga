@@ -28,8 +28,6 @@ note.pdf: note.tex $(ASSETS)/tests.tex $(ASSETS)/program.tex $(ASSETS)/includes.
 	pdflatex note.tex
 	pdflatex note.tex # don't look at me like that. it's latex
 
-everything: main tests pdf
-
 $(ASSETS)/program.tex: $(SOURCES)
 	for file in *.hpp *cpp; do \
 		echo -e "\n$$file:\n\n\\\begin{lstlisting}[language=C++]"; \
@@ -37,7 +35,7 @@ $(ASSETS)/program.tex: $(SOURCES)
 		echo '\end{lstlisting}'; \
 	done > $@
 
-$(ASSETS)/tests.tex: tests
+$(ASSETS)/tests.tex: main
 	$(MAKE) -C tests ../$@
 
 $(ASSETS)/includes.png: $(ASSETS)/includes.dot
