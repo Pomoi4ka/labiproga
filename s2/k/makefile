@@ -28,7 +28,7 @@ note.pdf: note.tex $(ASSETS)/tests.tex $(ASSETS)/program.tex $(ASSETS)/includes.
 	pdflatex note.tex # don't look at me like that. it's latex
 
 $(ASSETS)/program.tex: $(SOURCES)
-	for file in *.hpp *cpp; do \
+	for file in *.hpp *.cpp; do \
 		echo -e "\n$$file:\n\n\\\begin{lstlisting}[language=C++]"; \
 		cat $$file; \
 		echo '\end{lstlisting}'; \
