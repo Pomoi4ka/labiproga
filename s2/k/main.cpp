@@ -20,7 +20,8 @@ int main(int argc, const char *argv[])
 
     std::ofstream protocol(protocolPath);
     if (!protocol.is_open()) {
-        std::cerr << "ERROR: could not open file: " << protocolPath;
+        std::cerr << "ERROR: could not open file: "
+                  << protocolPath << std::endl;
         return 1;
     }
 
