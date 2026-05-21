@@ -5,11 +5,11 @@ struct Product {
     String name;
     size_t price;
 
-    Product();
+    inline Product();
 };
 
 struct Task {
-    Product *product;
+    Product const *product;
     size_t count;
     size_t row, col;
 };
@@ -18,7 +18,7 @@ struct Agent {
     String name;
     List<Task> tasks;
 
-    Task *findTask(Product *);
+    Task *findTask(Product const *);
     size_t sum() const;
 };
 

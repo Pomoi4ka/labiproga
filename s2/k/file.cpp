@@ -5,12 +5,12 @@
 #include "string.hpp"
 #include "file.hpp"
 
-Product::Product()
+inline Product::Product()
     : name()
     , price(PRODUCT_PRICE_UNKNOWN)
 {}
 
-Task *Agent::findTask(Product *p)
+Task *Agent::findTask(Product const *p)
 {
     tasks.reset();
     for (Task *t = tasks.next(); t; t = tasks.next())
