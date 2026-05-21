@@ -1,6 +1,4 @@
 #include <cstddef>
-#include <cassert>
-#include <inttypes.h>
 #include <ostream>
 
 #include "string.hpp"

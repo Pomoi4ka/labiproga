@@ -1,8 +1,6 @@
 #ifndef LIST_HPP_
 #define LIST_HPP_
 
-#include <cassert>
-
 template <typename T>
 class List {
     struct Node;
