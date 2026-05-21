@@ -46,7 +46,7 @@ Solution::generatePayouts(long amount, Stock stock)
         return branches;
     }
     if (!stock.hasNext()) return branches;
-    if ((long) stock.avail() < amount) return branches;
+    if (static_cast<long>(stock.avail()) < amount) return branches;
     Denom head = stock.popLeft();
     size_t d = head.value;
     size_t q = head.count;
