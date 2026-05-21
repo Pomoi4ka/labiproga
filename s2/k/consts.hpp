@@ -3,7 +3,7 @@
 
 const size_t STRING_BLOCK_SIZE = 6;
 const size_t PRODUCT_PRICE_UNKNOWN = ~0;
-extern const char *SECTION_KEYWORD;
-extern const char *SPACE_SYMBOLS;
+const char SECTION_KEYWORD[] = "section";
+const char SPACE_SYMBOLS[] = " \t\n\r";
 
 #endif // CONSTS_HPP_

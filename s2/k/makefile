@@ -3,7 +3,6 @@ SOURCES = \
 	main.cpp \
 	string.cpp \
 	stringBlock.cpp \
-	consts.cpp \
 	fileReader.cpp \
 	chars.cpp \
 	file.cpp \
