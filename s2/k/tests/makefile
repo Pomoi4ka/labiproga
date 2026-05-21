@@ -5,7 +5,7 @@ TESTS=$(wildcard *.txt)
 all: $(TESTS:.txt=.out)
 
 .txt.out:
-	../main $< $(<:.txt=.prot) 2>$@ 1>$@ || :
+	../main $< $(<:.txt=.prot) &>$@ || :
 
 ../$(ASSETS)/tests.tex: all
 	for test in $(TESTS); do \
