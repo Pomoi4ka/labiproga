@@ -1,0 +1,3 @@
+[submodule "braile_disp"]
+	path = s1/l2/braile_disp
+	url = git@github.com:M0x1m/braile_disp.git
