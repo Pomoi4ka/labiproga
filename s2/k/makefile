@@ -10,10 +10,7 @@ SOURCES = \
 
 OBJS = $(SOURCES:.cpp=.o)
 
-SHELL = bash
-ASSETS = assets
-export ASSETS
-export SHELL
+export ASSETS = assets
 
 main: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)

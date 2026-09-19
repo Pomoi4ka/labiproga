@@ -5,7 +5,7 @@ TESTS=$(wildcard *.txt)
 all: $(TESTS:.txt=.out)
 
 .txt.out:
-	../main $< $(<:.txt=.prot) &>$@ || :
+	../main $< $(<:.txt=.prot) 1>$@ 2>&1 || :
 
 ../$(ASSETS)/tests.tex: all
 	for test in $(TESTS); do \
@@ -13,9 +13,9 @@ all: $(TESTS:.txt=.out)
 		cat $$test; \
 		echo "\\end{spverbatim}"; \
 		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nВывод:\n\n\\\begin{spverbatim}"; \
-		cat $${test/txt/out}; \
+		cat $${test%txt}out; \
 		echo "\\end{spverbatim}"; \
 		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nПротокол:\n\n\\\begin{spverbatim}"; \
-		cat $${test/txt/prot}; \
+		cat $${test%txt}prot; \
 		echo "\\end{spverbatim}"; \
 	done > $@
