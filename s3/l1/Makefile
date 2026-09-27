@@ -7,6 +7,6 @@ pdf: $(ASSETS)/l1.tex report.tex
 	pdflatex report.tex
 
 $(ASSETS)/l1.tex: l1.s
-	(echo "\begin{lstlisting}"; \
+	(echo -e "\\\begin{lstlisting}"; \
 	cat $<; \
-	echo "\end{lstlisting}") >$@
+	echo -e "\\\end{lstlisting}") >$@
