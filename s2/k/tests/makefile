@@ -9,13 +9,13 @@ all: $(TESTS:.txt=.out)
 
 ../$(ASSETS)/tests.tex: all
 	for test in $(TESTS); do \
-		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nВходной файл:\n\n\\\begin{spverbatim}"; \
+		printf "\\\rule{\\\columnwidth}{0.5mm}\n\nВходной файл:\n\n\\\begin{spverbatim}\n"; \
 		cat $$test; \
-		echo -e "\\\end{spverbatim}"; \
-		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nВывод:\n\n\\\begin{spverbatim}"; \
+		printf "\\\end{spverbatim}\n"; \
+		printf "\\\rule{\\\columnwidth}{0.5mm}\n\nВывод:\n\n\\\begin{spverbatim}\n"; \
 		cat $${test%txt}out; \
-		echo -e "\\\end{spverbatim}"; \
-		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nПротокол:\n\n\\\begin{spverbatim}"; \
+		printf "\\\end{spverbatim}\n"; \
+		printf "\\\rule{\\\columnwidth}{0.5mm}\n\nПротокол:\n\n\\\begin{spverbatim}\n"; \
 		cat $${test%txt}prot; \
-		echo -e "\\\end{spverbatim}"; \
+		printf "\\\end{spverbatim}\n"; \
 	done > $@

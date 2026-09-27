@@ -10,6 +10,6 @@ $(ASSETS):
 	mkdir $(ASSETS)
 
 $(ASSETS)/l1.tex: l1.s
-	(echo -e "\\\begin{lstlisting}"; \
+	(printf "\\\begin{lstlisting}\n"; \
 	cat $<; \
-	echo -e "\\\end{lstlisting}") >$@
+	printf "\\\end{lstlisting}\n") >$@

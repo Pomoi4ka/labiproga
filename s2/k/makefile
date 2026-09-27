@@ -28,9 +28,9 @@ note.pdf: note.tex $(ASSETS)/tests.tex $(ASSETS)/program.tex $(ASSETS)/includes.
 
 $(ASSETS)/program.tex: $(SOURCES)
 	for file in *.hpp *.cpp; do \
-		echo -e "\n$$file:\n\n\\\begin{lstlisting}[language=C++]"; \
+		printf "\n$$file:\n\n\\\begin{lstlisting}[language=C++]\n"; \
 		cat $$file; \
-		echo -e '\\end{lstlisting}'; \
+		printf "\\\end{lstlisting}\n"; \
 	done > $@
 
 $(ASSETS)/tests.tex: main
