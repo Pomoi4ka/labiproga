@@ -18,11 +18,11 @@ strlen_again:
 strlen_done:
     sub a0, a0, t0
     ret
-    
+
 print:
     addi sp, sp, -8
     sw ra, 0(sp)
-    
+
     sw a0, 4(sp)
     call strlen
     mv a2, a0
@@ -30,63 +30,63 @@ print:
     li a0, 1
     li a7, SYS_WRITE
     ecall
-    
+
     lw ra, 0(sp)
     addi sp, sp, 8
     ret
-    
+
 printNumber:
     addi sp, sp, -64
     sw ra, 0(sp)
-    
+
     addi t1, sp, 60
     li t2, PRINT_NUMBER_BASE
     li t3, NEWLINE
-    
+
     addi t1, t1, -2
     sh t3, 0(t1)
 
 printNumber_loop:
     rem t3, a0, t2
     div a0, a0, t2
-    
+
     addi t3, t3, ASCII_ZERO
     addi t1, t1, -1
     sb t3, 0(t1)
-    
+
     bne a0, x0, printNumber_loop
-    
+
     mv a0, t1
     call print
-    
+
     lw ra, 0(sp)
     addi sp, sp, 64
     ret
- 
+
 procedure:
     srli a0, a0, 2
     addi a1, a1, -1
     slli a1, a1, 3
     add a0, a0, a1
     ret
-  
+
 _start:
     la s0, vars
     lw a0, X_VARS_OFFSET(s0)
     lw a1, Y_VARS_OFFSET(s0)
 
-    call procedure  
+    call procedure
     call printNumber
-    
+
     li a0, 0
     li a7, SYS_EXIT
     ecall
-    
+
 .data
 
 vars:
     x: .word 69
     y: .word 42
-    
-.equ X_VARS_OFFSET, 0 # x - vars не поддерживается >:L
+
+.equ X_VARS_OFFSET, 0 # x - vars is not supported >:L
 .equ Y_VARS_OFFSET, 4

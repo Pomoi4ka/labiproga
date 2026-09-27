@@ -1,0 +1,77 @@
+name: Build & Deploy LaTeX PDFs
+
+on:
+  push:
+    branches: [bottomless-pit]
+  workflow_dispatch:
+    inputs:
+      documents:
+        description: "Space-separated doc names to build (empty = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-fonts-extra \
+            texlive-bibtex-extra texlive-xetex texlive-luatex texlive-science \
+            latexmk biber
+          # Swap for `texlive-full` if you don't want to worry about packages.
+
+      - name: Build PDFs
+        run: |
+          make pdfs
+
+      - name: Upload PDFs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdfs
+          path: dist/*.pdf
+          if-no-files-found: error
+
+      - name: Prepare Pages site
+        run: |
+          mkdir -p public
+          cp dist/*.pdf public/
+          {
+            echo '<!doctype html><html><head><meta charset="utf-8">'
+            echo '<title>Documents</title></head><body>'
+            echo '<h1>PDF Documents</h1><ul>'
+            for f in public/*.pdf; do
+              b="$(basename "$f")"
+              echo "<li><a href=\"${b}\">${b}</a></li>"
+            done
+            echo '</ul></body></html>'
+          } > public/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
