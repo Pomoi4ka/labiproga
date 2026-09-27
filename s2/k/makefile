@@ -30,7 +30,7 @@ $(ASSETS)/program.tex: $(SOURCES)
 	for file in *.hpp *.cpp; do \
 		echo -e "\n$$file:\n\n\\\begin{lstlisting}[language=C++]"; \
 		cat $$file; \
-		echo '\end{lstlisting}'; \
+		echo -e '\\end{lstlisting}'; \
 	done > $@
 
 $(ASSETS)/tests.tex: main
