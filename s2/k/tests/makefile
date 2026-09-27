@@ -11,11 +11,11 @@ all: $(TESTS:.txt=.out)
 	for test in $(TESTS); do \
 		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nВходной файл:\n\n\\\begin{spverbatim}"; \
 		cat $$test; \
-		echo "\\end{spverbatim}"; \
+		echo -e "\\\end{spverbatim}"; \
 		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nВывод:\n\n\\\begin{spverbatim}"; \
 		cat $${test%txt}out; \
-		echo "\\end{spverbatim}"; \
+		echo -e "\\\end{spverbatim}"; \
 		echo -e "\\\rule{\\\columnwidth}{0.5mm}\n\nПротокол:\n\n\\\begin{spverbatim}"; \
 		cat $${test%txt}prot; \
-		echo "\\end{spverbatim}"; \
+		echo -e "\\\end{spverbatim}"; \
 	done > $@
