@@ -19,7 +19,7 @@ main: $(OBJS)
 tests: main
 	$(MAKE) -C tests
 
-.PHONY:
+.PHONY: pdf
 pdf: note.pdf
 
 note.pdf: note.tex $(ASSETS)/tests.tex $(ASSETS)/program.tex $(ASSETS)/includes.png

@@ -2,14 +2,16 @@ ASSETS = assets
 
 .PHONY: pdf
 
-pdf: $(ASSETS) $(ASSETS)/l1.tex report.tex
+pdf: report.pdf
+
+report.pdf: $(ASSETS)/l1.tex report.tex
 	pdflatex report.tex
 	pdflatex report.tex
 
 $(ASSETS):
-	mkdir $(ASSETS)
+	mkdir -p $(ASSETS)
 
-$(ASSETS)/l1.tex: l1.s
+$(ASSETS)/l1.tex: l1.s $(ASSETS)
 	(printf "\\\begin{lstlisting}\n"; \
 	cat $<; \
 	printf "\\\end{lstlisting}\n") >$@
