@@ -2,9 +2,12 @@ ASSETS = assets
 
 .PHONY: pdf
 
-pdf: $(ASSETS) $(ASSETS)/l2.tex report.tex
+pdf: s3l2_report.pdf
+
+s3l2_report.pdf: $(ASSETS) $(ASSETS)/l2.tex report.tex
 	pdflatex report.tex
 	pdflatex report.tex
+	mv report.pdf $@
 
 $(ASSETS):
 	mkdir $(ASSETS)
