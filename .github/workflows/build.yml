@@ -1,6 +1,8 @@
 name: Build & Deploy LaTeX PDFs
 
 on:
+  pull_request:
+    branches: [bottomless-pit]
   push:
     branches: [bottomless-pit]
   workflow_dispatch:
