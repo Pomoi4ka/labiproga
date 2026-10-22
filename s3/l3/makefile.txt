@@ -1,0 +1,17 @@
+ASSETS = assets
+
+.PHONY: pdf
+
+pdf: report.pdf
+
+report.pdf: $(ASSETS)/leds_new.tex $(ASSETS)/switchesAndLeds.c report.tex
+	pdflatex report.tex
+	pdflatex report.tex
+
+$(ASSETS):
+	mkdir -p $(ASSETS)
+
+$(ASSETS)/%.tex: %.c $(ASSETS)
+	(printf "\\\begin{lstlisting}[language=C]\n"; \
+	cat $<; \
+	printf "\\\end{lstlisting}\n") >$@
